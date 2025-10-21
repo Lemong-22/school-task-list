@@ -5,6 +5,8 @@ import { RegisterPage } from './pages/RegisterPage';
 import { LoginPage } from './pages/LoginPage';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
+import { CreateTaskPage } from './pages/CreateTaskPage';
+import { EditTaskPage } from './pages/EditTaskPage';
 
 function App() {
   return (
@@ -31,6 +33,24 @@ function App() {
             element={
               <ProtectedRoute allowedRole="teacher">
                 <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/tasks/create"
+            element={
+              <ProtectedRoute allowedRole="teacher">
+                <CreateTaskPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/tasks/edit/:taskId"
+            element={
+              <ProtectedRoute allowedRole="teacher">
+                <EditTaskPage />
               </ProtectedRoute>
             }
           />
