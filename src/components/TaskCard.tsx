@@ -4,22 +4,19 @@
  * Phase 3E: UI Components
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { TaskAssignmentWithTask } from '../types/task';
 import { CoinRewardResult } from '../types/coin';
 import { useCoins } from '../hooks/useCoins';
-import { CoinRewardModal } from './CoinRewardModal';
 
 interface TaskCardProps {
   assignment: TaskAssignmentWithTask;
   studentId: string;
-  onTaskCompleted?: () => void;
+  onTaskCompleted?: (reward: CoinRewardResult, taskTitle: string) => void;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTaskCompleted }) => {
   const { completeTask, loading, error } = useCoins();
-  const [showRewardModal, setShowRewardModal] = useState(false);
-  const [rewardData, setRewardData] = useState<CoinRewardResult | null>(null);
 
   const { task, is_completed, completed_at } = assignment;
   const dueDate = new Date(task.due_date);
@@ -29,14 +26,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTas
   const handleCompleteTask = async () => {
     const result = await completeTask(assignment.id, studentId);
     
-    if (result) {
-      setRewardData(result);
-      setShowRewardModal(true);
-      
-      // Callback to refresh task list
-      if (onTaskCompleted) {
-        onTaskCompleted();
-      }
+    if (result && onTaskCompleted) {
+      // Pass reward data to parent component
+      onTaskCompleted(result, task.title);
     }
   };
 
@@ -139,14 +131,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTas
           </div>
         )}
       </div>
-
-      {/* Coin Reward Modal */}
-      <CoinRewardModal
-        isOpen={showRewardModal}
-        onClose={() => setShowRewardModal(false)}
-        rewardData={rewardData}
-        taskTitle={task.title}
-      />
     </>
   );
 };

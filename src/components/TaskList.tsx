@@ -6,12 +6,13 @@
 
 import React from 'react';
 import { TaskAssignmentWithTask } from '../types/task';
+import { CoinRewardResult } from '../types/coin';
 import { TaskCard } from './TaskCard';
 
 interface TaskListProps {
   assignments: TaskAssignmentWithTask[];
   studentId: string;
-  onTaskCompleted?: () => void;
+  onTaskCompleted?: (reward: CoinRewardResult, taskTitle: string) => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({ assignments, studentId, onTaskCompleted }) => {

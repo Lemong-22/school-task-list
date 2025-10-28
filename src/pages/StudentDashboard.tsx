@@ -1,13 +1,26 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTasks } from '../hooks/useTasks';
 import { CoinDisplay } from '../components/CoinDisplay';
 import { TaskList } from '../components/TaskList';
+import { CoinRewardModal } from '../components/CoinRewardModal';
+import { CoinRewardResult } from '../types/coin';
+import { supabase } from '../lib/supabaseClient';
 
 export const StudentDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const { tasks, loading, error, refetch } = useTasks(user?.id || null);
+  const [currentCoins, setCurrentCoins] = useState(profile?.total_coins || 0);
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [rewardData, setRewardData] = useState<CoinRewardResult | null>(null);
+  const [completedTaskTitle, setCompletedTaskTitle] = useState<string>('');
+
+  // Update coins when profile changes
+  useEffect(() => {
+    setCurrentCoins(profile?.total_coins || 0);
+  }, [profile?.total_coins]);
 
   const handleLogout = async () => {
     try {
@@ -18,9 +31,27 @@ export const StudentDashboard = () => {
     }
   };
 
-  const handleTaskCompleted = () => {
-    // Refetch tasks to update the list
-    refetch();
+  const handleTaskCompleted = async (reward: CoinRewardResult, taskTitle: string) => {
+    // Show the reward modal FIRST before refetching
+    setRewardData(reward);
+    setCompletedTaskTitle(taskTitle);
+    setShowRewardModal(true);
+    
+    // Then refetch tasks and coins
+    await refetch();
+    
+    // Refetch profile to update coins in real-time
+    if (user?.id) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('total_coins')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setCurrentCoins(data.total_coins);
+      }
+    }
   };
 
   return (
@@ -33,7 +64,7 @@ export const StudentDashboard = () => {
             
             <div className="flex items-center gap-4">
               {/* Coin Display */}
-              <CoinDisplay totalCoins={profile?.total_coins || 0} />
+              <CoinDisplay totalCoins={currentCoins} />
               
               {/* Leaderboard Link */}
               <button
@@ -112,6 +143,14 @@ export const StudentDashboard = () => {
           )}
         </div>
       </main>
+
+      {/* Coin Reward Modal */}
+      <CoinRewardModal
+        isOpen={showRewardModal}
+        onClose={() => setShowRewardModal(false)}
+        rewardData={rewardData}
+        taskTitle={completedTaskTitle}
+      />
     </div>
   );
 };

@@ -31,7 +31,9 @@ export const CoinRewardModal: React.FC<CoinRewardModalProps> = ({
     }
   }, [isOpen, onClose]);
 
-  if (!isOpen || !rewardData) return null;
+  if (!isOpen || !rewardData) {
+    return null;
+  }
 
   const { coins_awarded, is_bonus, is_on_time, total_coins } = rewardData;
 
