@@ -1,46 +1,37 @@
+/**
+ * Task and Task Assignment Type Definitions
+ * Phase 3C: TypeScript Types
+ */
+
+/**
+ * Represents a task created by a teacher
+ */
 export interface Task {
   id: string;
   title: string;
-  description: string | null;
-  due_date: string; // ISO 8601 date string
-  subject: string; // Mata Pelajaran
-  teacher_id: string;
+  description: string;
+  subject: string;
+  due_date: string;
+  created_by: string;
   created_at: string;
-  updated_at: string;
 }
 
+/**
+ * Represents a task assignment to a student
+ */
 export interface TaskAssignment {
   id: string;
   task_id: string;
   student_id: string;
-  status: 'pending' | 'completed';
+  is_completed: boolean;
   completed_at: string | null;
-  created_at: string;
-  // Joined data from tasks table
-  task?: Task & {
-    profiles?: {
-      full_name: string;
-    };
-  };
+  assigned_at: string;
+  task?: Task; // Joined task data
 }
 
-export interface CreateTaskInput {
-  title: string;
-  description?: string;
-  due_date: string;
-  subject: string; // Mata Pelajaran
-  student_ids: string[]; // Array of student UUIDs
-}
-
-export interface UpdateTaskInput {
-  title?: string;
-  description?: string;
-  due_date?: string;
-  subject?: string; // Mata Pelajaran
-  student_ids?: string[]; // If provided, replaces all assignments
-}
-
-export interface TaskWithStats extends Task {
-  total_assignments: number;
-  completed_assignments: number;
+/**
+ * Extended task assignment with task details
+ */
+export interface TaskAssignmentWithTask extends TaskAssignment {
+  task: Task;
 }

@@ -1,208 +1,136 @@
-import { Task, TaskAssignment, TaskWithStats } from '../types/task';
+/**
+ * TaskCard Component
+ * Displays a task with completion button and status
+ * Phase 3E: UI Components
+ */
+
+import React from 'react';
+import { TaskAssignmentWithTask } from '../types/task';
+import { CoinRewardResult } from '../types/coin';
+import { useCoins } from '../hooks/useCoins';
 
 interface TaskCardProps {
-  task?: Task | TaskWithStats;
-  assignment?: TaskAssignment;
-  isTeacher: boolean;
-  onEdit?: (taskId: string) => void;
-  onDelete?: (taskId: string) => void;
-  onComplete?: (assignmentId: string) => void;
+  assignment: TaskAssignmentWithTask;
+  studentId: string;
+  onTaskCompleted?: (reward: CoinRewardResult, taskTitle: string) => void;
 }
 
-export const TaskCard = ({
-  task,
-  assignment,
-  isTeacher,
-  onEdit,
-  onDelete,
-  onComplete,
-}: TaskCardProps) => {
-  // Determine the actual task data
-  const taskData = task || assignment?.task;
-  if (!taskData) return null;
+export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTaskCompleted }) => {
+  const { completeTask, loading, error } = useCoins();
 
-  // Check if task is overdue
-  const dueDate = new Date(taskData.due_date);
-  const today = new Date();
-  const isOverdue = dueDate < today && (!assignment || assignment.status === 'pending');
+  const { task, is_completed, completed_at } = assignment;
+  const dueDate = new Date(task.due_date);
+  const now = new Date();
+  const isOverdue = !is_completed && dueDate < now;
 
-  // Check if completed
-  const isCompleted = assignment?.status === 'completed';
-  
-  // Check if all students have completed (for teachers)
-  const taskWithStats = task as TaskWithStats | undefined;
-  const isFullyCompleted = isTeacher && 
-    taskWithStats && 
-    'total_assignments' in taskWithStats && 
-    taskWithStats.total_assignments > 0 && 
-    taskWithStats.completed_assignments === taskWithStats.total_assignments;
+  const handleCompleteTask = async () => {
+    const result = await completeTask(assignment.id, studentId);
+    
+    if (result && onTaskCompleted) {
+      // Pass reward data to parent component
+      onTaskCompleted(result, task.title);
+    }
+  };
 
-  // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
   return (
-    <div
-      className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
-        isCompleted || isFullyCompleted
-          ? 'border-green-500 opacity-75'
-          : isOverdue
-          ? 'border-red-500'
-          : 'border-indigo-500'
-      }`}
-    >
-      {/* Header */}
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex-1">
-          {/* Subject Badge */}
-          <div className="mb-2">
-            <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">
-              {taskData.subject}
-            </span>
+    <>
+      <div className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
+        is_completed 
+          ? 'border-green-500' 
+          : isOverdue 
+          ? 'border-red-500' 
+          : 'border-blue-500'
+      }`}>
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h3 className={`text-xl font-semibold ${
+              is_completed ? 'text-gray-500 line-through' : 'text-gray-800'
+            }`}>
+              {task.title}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              <span className="inline-block bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium">
+                {task.subject}
+              </span>
+            </p>
           </div>
-          <h3
-            className={`text-lg font-semibold ${
-              isCompleted ? 'line-through text-gray-500' : 'text-gray-900'
-            }`}
-          >
-            {taskData.title}
-          </h3>
-          {taskData.description && (
-            <p className="text-gray-600 text-sm mt-1">{taskData.description}</p>
+
+          {/* Status Badge */}
+          {is_completed && (
+            <span className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+              ✓ Completed
+            </span>
+          )}
+          {!is_completed && isOverdue && (
+            <span className="inline-flex items-center bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+              ⏰ Overdue
+            </span>
           )}
         </div>
 
-        {/* Status Badge */}
-        {!isTeacher && (
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-medium ${
-              isCompleted
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}
-          >
-            {isCompleted ? 'Selesai' : 'Tertunda'}
-          </span>
-        )}
-        {isTeacher && isFullyCompleted && (
-          <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            ✓ Semua Selesai
-          </span>
-        )}
-      </div>
+        {/* Description */}
+        <p className="text-gray-700 mb-4">{task.description}</p>
 
-      {/* Due Date */}
-      <div className="flex items-center text-sm mb-4">
-        <svg
-          className="w-4 h-4 mr-2 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
-        <span className={isOverdue && !isCompleted ? 'text-red-600 font-medium' : 'text-gray-600'}>
-          Jatuh Tempo: {formatDate(taskData.due_date)}
-          {isOverdue && !isCompleted && (
-            <span className="ml-2 text-red-600 font-semibold">(Terlambat)</span>
-          )}
-        </span>
-      </div>
-
-      {/* Teacher View - Progress Statistics */}
-      {isTeacher && taskWithStats && 'total_assignments' in taskWithStats && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-gray-600">Progress Penyelesaian:</span>
-            <span className="font-medium text-gray-900">
-              {taskWithStats.completed_assignments} dari {taskWithStats.total_assignments} siswa
+        {/* Due Date */}
+        <div className="flex items-center text-sm text-gray-600 mb-4">
+          <span className="mr-2">📅</span>
+          <span>
+            Due: <span className={isOverdue && !is_completed ? 'text-red-600 font-semibold' : 'font-medium'}>
+              {formatDate(task.due_date)}
             </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-              style={{
-                width: `${
-                  taskWithStats.total_assignments > 0
-                    ? (taskWithStats.completed_assignments / taskWithStats.total_assignments) * 100
-                    : 0
-                }%`,
-              }}
-            ></div>
-          </div>
+          </span>
         </div>
-      )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-2 mt-4">
-        {/* Student - Complete Button */}
-        {!isTeacher && assignment && !isCompleted && (
-          <button
-            onClick={() => onComplete?.(assignment.id)}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-          >
-            ✓ Selesaikan Tugas
-          </button>
-        )}
-
-        {/* Student - Completed Label */}
-        {!isTeacher && isCompleted && assignment?.completed_at && (() => {
-          const date = new Date(assignment.completed_at);
-          const dateStr = date.toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          });
-          const timeStr = date.toLocaleTimeString('id-ID', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          }).replace('.', ':'); // Replace period with colon
-          return (
-            <div className="flex-1 text-center text-sm text-gray-500">
-              Diselesaikan pada {dateStr}, {timeStr}
-            </div>
-          );
-        })()}
-
-        {/* Teacher - Edit Button (only if not fully completed) */}
-        {isTeacher && onEdit && !isFullyCompleted && (
-          <button
-            onClick={() => onEdit(taskData.id)}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-          >
-            ✏️ Edit
-          </button>
-        )}
-
-        {/* Teacher - Delete Button (only if not fully completed) */}
-        {isTeacher && onDelete && !isFullyCompleted && (
-          <button
-            onClick={() => onDelete(taskData.id)}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-          >
-            🗑️ Hapus
-          </button>
-        )}
-        
-        {/* Teacher - Completed Message */}
-        {isTeacher && isFullyCompleted && (
-          <div className="flex-1 text-center text-sm text-green-600 font-medium">
-            ✓ Tugas ini telah diselesaikan oleh semua siswa
+        {/* Completion Info or Action Button */}
+        {is_completed ? (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <p className="text-sm text-gray-600">
+              Completed on: <span className="font-medium">{formatDate(completed_at!)}</span>
+            </p>
+          </div>
+        ) : (
+          <div>
+            {error && (
+              <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+            <button
+              onClick={handleCompleteTask}
+              disabled={loading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
+                loading
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Completing...
+                </span>
+              ) : (
+                '✓ Complete Task'
+              )}
+            </button>
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };

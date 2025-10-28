@@ -5,8 +5,9 @@ import { RegisterPage } from './pages/RegisterPage';
 import { LoginPage } from './pages/LoginPage';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
-import { CreateTaskPage } from './pages/CreateTaskPage';
-import { EditTaskPage } from './pages/EditTaskPage';
+// import { CreateTaskPage } from './pages/CreateTaskPage'; // TODO: Re-implement with gamification
+// import { EditTaskPage } from './pages/EditTaskPage'; // TODO: Re-implement with gamification
+import { LeaderboardPage } from './pages/LeaderboardPage';
 
 function App() {
   return (
@@ -37,7 +38,8 @@ function App() {
             }
           />
 
-          <Route
+          {/* TODO: Re-implement Task CRUD with gamification support */}
+          {/* <Route
             path="/tasks/create"
             element={
               <ProtectedRoute allowedRole="teacher">
@@ -51,6 +53,16 @@ function App() {
             element={
               <ProtectedRoute allowedRole="teacher">
                 <EditTaskPage />
+              </ProtectedRoute>
+            }
+          /> */}
+
+          {/* Leaderboard - accessible to all authenticated users (no role restriction) */}
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute>
+                <LeaderboardPage />
               </ProtectedRoute>
             }
           />
