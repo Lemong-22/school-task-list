@@ -29,7 +29,7 @@ export const useTasks = (studentId: string | null) => {
           task:tasks(*)
         `)
         .eq('student_id', studentId)
-        .order('assigned_at', { ascending: false });
+        .order('id', { ascending: false });
 
       if (fetchError) throw fetchError;
 
