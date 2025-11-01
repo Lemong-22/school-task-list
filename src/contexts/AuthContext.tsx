@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, role, total_coins, created_at, active_title_id, equipped_badges')
         .eq('id', userId)
         .single();
 
@@ -160,6 +160,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Expose refreshProfile for manual profile updates (e.g., after earning coins)
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchUserProfile(user.id);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     profile,
@@ -168,6 +175,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signUp,
     signIn,
     signOut,
+    refreshProfile,
     isAuthenticated: !!user,
   };
 

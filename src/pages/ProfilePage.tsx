@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useProfile } from '../hooks/useProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { useInventory } from '../hooks/useInventory';
+import { RARITY_CONFIG, MAX_EQUIPPED_BADGES } from '../types/shop';
 
 export const ProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -21,6 +23,7 @@ export const ProfilePage: React.FC = () => {
   const actualUserId = location.pathname === '/profile/me' ? 'me' : userId;
   
   const { profile, loading, error, updateFullName } = useProfile(actualUserId);
+  const { inventory, loading: inventoryLoading } = useInventory(profile?.id);
   
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
@@ -231,61 +234,136 @@ export const ProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Title Slot (Future Feature) */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Only show cosmetic items for students */}
+            {profile.role === 'student' && (
+              <>
+                {/* Title Slot */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gradient-to-br from-gray-50 to-gray-100">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-3">
-                  <span className="text-2xl">👑</span>
+                  <span className="text-2xl">📜</span>
                   <h3 className="text-lg font-bold text-gray-700">Gelar (Title)</h3>
                 </div>
-                <div className="bg-white border-2 border-gray-200 rounded-lg py-8 px-6">
-                  <p className="text-gray-400 text-sm">Belum ada gelar dipilih</p>
-                  <p className="text-gray-400 text-xs mt-2">Gelar akan tersedia di Toko Koin (Coming Soon)</p>
-                </div>
+                {(() => {
+                  const equippedTitle = inventory?.find(item => item.type === 'title' && item.is_equipped);
+                  return equippedTitle ? (
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-lg py-6 px-6">
+                      <div className="text-3xl mb-2">📜</div>
+                      <h4 className="text-xl font-bold text-gray-800 mb-1">{equippedTitle.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{equippedTitle.description}</p>
+                      <span className={`inline-block text-xs font-semibold px-3 py-1 rounded ${RARITY_CONFIG[equippedTitle.rarity].color}`}>
+                        {RARITY_CONFIG[equippedTitle.rarity].label}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="bg-white border-2 border-gray-200 rounded-lg py-8 px-6">
+                      <p className="text-gray-400 text-sm">No title selected</p>
+                      {isOwnProfile && (
+                        <button
+                          onClick={() => navigate('/shop')}
+                          className="mt-3 text-indigo-600 hover:text-indigo-700 text-xs font-medium"
+                        >
+                          Buy Title at Shop →
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
-            {/* Badge Gallery (Future Feature) */}
+            {/* Badge Gallery */}
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gradient-to-br from-gray-50 to-gray-100">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-2xl">🏅</span>
+                <span className="text-2xl">🎖️</span>
                 <h3 className="text-lg font-bold text-gray-700">Koleksi Lencana (Badges)</h3>
               </div>
               
-              {/* Badge Grid - 8 empty slots */}
-              <div className="grid grid-cols-4 gap-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((slot) => (
-                  <div
-                    key={slot}
-                    className="aspect-square bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center hover:border-gray-300 transition-colors"
-                  >
-                    <span className="text-3xl text-gray-300">🔒</span>
-                  </div>
-                ))}
-              </div>
-              
-              <p className="text-center text-gray-400 text-xs mt-4">
-                Lencana akan tersedia di Toko Koin (Coming Soon)
-              </p>
+              {(() => {
+                const equippedBadges = inventory?.filter(item => item.type === 'badge' && item.is_equipped) || [];
+                const hasEquippedBadges = equippedBadges.length > 0;
+                
+                return (
+                  <>
+                    {/* Badge Grid - 6 slots */}
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+                      {Array.from({ length: MAX_EQUIPPED_BADGES }).map((_, index) => {
+                        const badge = equippedBadges[index];
+                        return (
+                          <div
+                            key={index}
+                            className={`aspect-square rounded-lg flex flex-col items-center justify-center transition-all ${
+                              badge
+                                ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300'
+                                : 'bg-white border-2 border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            {badge ? (
+                              <>
+                                <div className="text-4xl mb-1">{badge.icon_url || '🎖️'}</div>
+                                <span className="text-xs font-semibold text-gray-700 text-center px-1 break-words">
+                                  {badge.name}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-3xl text-gray-300">🔒</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {!hasEquippedBadges && (
+                      <div className="text-center mt-4">
+                        <p className="text-gray-400 text-sm">No badges selected</p>
+                        {isOwnProfile && (
+                          <button
+                            onClick={() => navigate('/shop')}
+                            className="mt-2 text-indigo-600 hover:text-indigo-700 text-xs font-medium"
+                          >
+                            Buy Badges at Shop →
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
+            
+                {/* Manage Items Button (Own Profile Only) */}
+                {isOwnProfile && (
+                  <div className="text-center">
+                    <button
+                      onClick={() => navigate('/inventory')}
+                      className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-semibold shadow-md"
+                    >
+                      🎒 Manage My Items
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
 
-        {/* Info Box */}
-        <div className="mt-6 bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        {/* Info Box - Only for students */}
+        {profile.role === 'student' && (
+          <div className="mt-6 bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <div className="flex items-start gap-3">
             <span className="text-2xl">💡</span>
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">Tentang Profil</h3>
               <ul className="text-gray-600 space-y-1 text-sm">
                 <li>• Profil bersifat publik dan dapat dilihat oleh siswa lain</li>
-                <li>• Kumpulkan lebih banyak koin dengan menyelesaikan tugas</li>
-                <li>• Gelar dan lencana akan segera tersedia di Toko Koin</li>
-                {isOwnProfile && <li>• Anda dapat mengubah nama Anda dengan mengklik ikon edit</li>}
+                <li>• Collect more coins by completing tasks</li>
+                <li>• Buy titles and badges at Coin Shop to personalize your profile</li>
+                {isOwnProfile && <li>• You can change your name by clicking the edit icon</li>}
               </ul>
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

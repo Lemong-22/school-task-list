@@ -9,6 +9,8 @@ import { CreateTaskPage } from './pages/CreateTaskPage';
 import { EditTaskPage } from './pages/EditTaskPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { ShopPage } from './pages/ShopPage';
+import { InventoryPage } from './pages/InventoryPage';
 
 function App() {
   return (
@@ -64,6 +66,26 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeaderboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shop - accessible to all authenticated users */}
+          <Route
+            path="/shop"
+            element={
+              <ProtectedRoute>
+                <ShopPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Inventory - accessible to all authenticated users */}
+          <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute>
+                <InventoryPage />
               </ProtectedRoute>
             }
           />
