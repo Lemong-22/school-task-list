@@ -74,6 +74,14 @@ export const StudentDashboard = () => {
                 🏆 Leaderboard
               </button>
               
+              {/* My Profile Link */}
+              <button
+                onClick={() => navigate('/profile/me')}
+                className="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors"
+              >
+                👤 My Profile
+              </button>
+              
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
