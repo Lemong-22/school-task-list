@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTeacherTasks } from '../hooks/useTeacherTasks';
+import { TeacherTaskCard } from '../components/TeacherTaskCard';
 
 export const TeacherDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { tasks, loading, error, deleteTask } = useTeacherTasks(user?.id || null);
 
   const handleLogout = async () => {
     try {
@@ -23,6 +26,14 @@ export const TeacherDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-900">Teacher Dashboard</h1>
             
             <div className="flex items-center gap-4">
+              {/* Create Task Button */}
+              <button
+                onClick={() => navigate('/tasks/create')}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+              >
+                ➕ Create New Task
+              </button>
+
               {/* Leaderboard Link */}
               <button
                 onClick={() => navigate('/leaderboard')}
@@ -71,41 +82,75 @@ export const TeacherDashboard = () => {
             </div>
           </div>
 
-          {/* Leaderboard Info */}
+          {/* Task Stats */}
           <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold mb-2">🏆 View Leaderboard</h3>
-                <p className="text-sm opacity-90">
-                  Check student rankings and engagement
+                <h3 className="text-lg font-semibold mb-2">📊 Your Tasks</h3>
+                <p className="text-3xl font-bold">{tasks.length}</p>
+                <p className="text-sm opacity-90 mt-1">
+                  Total tasks created
                 </p>
-                <button
-                  onClick={() => navigate('/leaderboard')}
-                  className="mt-3 bg-white text-indigo-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
-                >
-                  Open Leaderboard
-                </button>
               </div>
-              <div className="text-5xl">📊</div>
+              <div className="text-5xl">📝</div>
             </div>
           </div>
         </div>
 
         {/* Task Management Section */}
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Task Management</h3>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-            <div className="text-5xl mb-3">📝</div>
-            <p className="text-gray-700 font-medium mb-2">
-              Task CRUD features coming soon!
-            </p>
-            <p className="text-sm text-gray-600">
-              You'll be able to create, edit, and assign tasks to students.
-            </p>
-            <p className="text-xs text-gray-500 mt-3">
-              For now, you can view the leaderboard to see student engagement.
-            </p>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">My Tasks</h3>
+            <button
+              onClick={() => navigate('/tasks/create')}
+              className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+            >
+              ➕ Create New Task
+            </button>
           </div>
+
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <svg className="animate-spin h-12 w-12 text-indigo-600 mx-auto mb-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <p className="text-gray-600">Loading tasks...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-600">Error: {error}</p>
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+              <div className="text-5xl mb-3">📝</div>
+              <p className="text-gray-700 font-medium mb-2">
+                No tasks created yet
+              </p>
+              <p className="text-sm text-gray-600 mb-4">
+                Create your first task to assign to students and start the gamification!
+              </p>
+              <button
+                onClick={() => navigate('/tasks/create')}
+                className="px-6 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+              >
+                ➕ Create Your First Task
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {tasks.map((task) => (
+                <TeacherTaskCard
+                  key={task.id}
+                  task={task}
+                  onDelete={deleteTask}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
