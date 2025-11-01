@@ -8,7 +8,9 @@ export interface UserProfile {
   role: UserRole;
   total_coins: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  active_title_id?: string | null;
+  equipped_badges?: string[];
 }
 
 export interface AuthContextType {
@@ -19,5 +21,6 @@ export interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
   isAuthenticated: boolean;
 }

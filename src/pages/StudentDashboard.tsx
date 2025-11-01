@@ -9,7 +9,7 @@ import { CoinRewardResult } from '../types/coin';
 import { supabase } from '../lib/supabaseClient';
 
 export const StudentDashboard = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { tasks, loading, error, refetch } = useTasks(user?.id || null);
   const [currentCoins, setCurrentCoins] = useState(profile?.total_coins || 0);
@@ -40,7 +40,10 @@ export const StudentDashboard = () => {
     // Then refetch tasks and coins
     await refetch();
     
-    // Refetch profile to update coins in real-time
+    // Refresh profile in AuthContext for real-time coin updates across all components
+    await refreshProfile();
+    
+    // Update local state as well
     if (user?.id) {
       const { data } = await supabase
         .from('profiles')
@@ -65,6 +68,22 @@ export const StudentDashboard = () => {
             <div className="flex items-center gap-4">
               {/* Coin Display */}
               <CoinDisplay totalCoins={currentCoins} />
+              
+              {/* Shop Link */}
+              <button
+                onClick={() => navigate('/shop')}
+                className="px-4 py-2 text-sm font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
+              >
+                🛒 Shop
+              </button>
+              
+              {/* Inventory Link */}
+              <button
+                onClick={() => navigate('/inventory')}
+                className="px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-md transition-colors"
+              >
+                🎒 Inventory
+              </button>
               
               {/* Leaderboard Link */}
               <button

@@ -14,6 +14,20 @@ interface Profile {
   role: string;
   total_coins: number;
   created_at: string;
+  active_title_id: string | null;
+  equipped_badges: string[];
+  // Populated fields (when joining with shop_items)
+  active_title?: {
+    id: string;
+    name: string;
+    rarity: string;
+  } | null;
+  badge_items?: Array<{
+    id: string;
+    name: string;
+    icon_url: string | null;
+    rarity: string;
+  }>;
 }
 
 interface UseProfileResult {
@@ -56,7 +70,7 @@ export const useProfile = (userId: string | undefined): UseProfileResult => {
 
       const { data, error: fetchError } = await supabase
         .from('profiles')
-        .select('id, full_name, role, total_coins, created_at')
+        .select('id, full_name, role, total_coins, created_at, active_title_id, equipped_badges')
         .eq('id', actualUserId)
         .single();
 
