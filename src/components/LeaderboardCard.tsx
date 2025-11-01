@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { LeaderboardEntry } from '../types/coin';
 
 interface LeaderboardCardProps {
@@ -40,7 +41,10 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ entry, isCurre
   const rankClasses = rank <= 3 ? 'text-yellow-600 font-bold' : 'text-gray-600';
 
   return (
-    <div className={`${cardClasses} rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow`}>
+    <Link 
+      to={`/profile/${entry.student_id}`}
+      className={`${cardClasses} rounded-lg p-4 shadow-sm hover:shadow-lg transition-all block cursor-pointer`}
+    >
       <div className="flex items-center justify-between">
         {/* Left: Rank and Name */}
         <div className="flex items-center gap-4 flex-1">
@@ -72,6 +76,6 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ entry, isCurre
           <span className="text-xl font-bold">{total_coins}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

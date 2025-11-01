@@ -8,6 +8,7 @@ import { TeacherDashboard } from './pages/TeacherDashboard';
 import { CreateTaskPage } from './pages/CreateTaskPage';
 import { EditTaskPage } from './pages/EditTaskPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 function App() {
   return (
@@ -63,6 +64,25 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeaderboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Profile Pages - accessible to all authenticated users */}
+          <Route
+            path="/profile/me"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile/:userId"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
