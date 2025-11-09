@@ -1,19 +1,26 @@
 /**
  * useTeacherTasks Hook - Manages task CRUD operations for teachers
  * Phase 3H: Teacher Task Management with Gamification
+ * Phase 6: Added server-side filtering with RPC functions
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Task, CreateTaskInput, UpdateTaskInput } from '../types/task';
+import { TaskFilters } from '../types/filters';
+import { useDebounce } from './useDebounce';
 
-export const useTeacherTasks = (teacherId: string | null) => {
+export const useTeacherTasks = (teacherId: string | null, filters?: TaskFilters) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Debounce search term to prevent excessive API calls
+  const debouncedSearch = useDebounce(filters?.search || '', 300);
+
   /**
    * Fetch all tasks created by this teacher
+   * Phase 6: Now uses server-side filtering via RPC function
    */
   const fetchTasks = useCallback(async () => {
     if (!teacherId) {
@@ -25,11 +32,12 @@ export const useTeacherTasks = (teacherId: string | null) => {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('teacher_id', teacherId)
-        .order('created_at', { ascending: false });
+      const { data, error: fetchError } = await supabase.rpc('filter_teacher_tasks', {
+        p_teacher_id: teacherId,
+        p_subject: filters?.subject || null,
+        p_status: filters?.status || 'all',
+        p_search: debouncedSearch || null,
+      });
 
       if (fetchError) throw fetchError;
 
@@ -41,7 +49,7 @@ export const useTeacherTasks = (teacherId: string | null) => {
     } finally {
       setLoading(false);
     }
-  }, [teacherId]);
+  }, [teacherId, filters?.subject, filters?.status, debouncedSearch]);
 
   /**
    * Create a new task and assign it to students
