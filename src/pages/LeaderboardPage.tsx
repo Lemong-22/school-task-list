@@ -4,134 +4,169 @@
  * Phase 3G: Leaderboard Page
  */
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLeaderboard, useStudentRank } from '../hooks/useLeaderboard';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useAuth } from '../contexts/AuthContext';
-import { LeaderboardCard } from '../components/LeaderboardCard';
+import { Layout } from '../components/Layout';
 
 export const LeaderboardPage: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const { leaderboard, loading: leaderboardLoading, error: leaderboardError } = useLeaderboard(50);
-  const { rank: currentUserRank, loading: rankLoading } = useStudentRank(user?.id || null);
-  
-  const loading = leaderboardLoading || rankLoading;
-  const error = leaderboardError;
+  const { leaderboard, loading, error } = useLeaderboard(50);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading leaderboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
-          <div className="text-center">
-            <span className="text-6xl mb-4 block">⚠️</span>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Leaderboard</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
-            <button
-              onClick={() => navigate(-1)}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Go Back
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Filter leaderboard based on search
+  const filteredLeaderboard = leaderboard.filter(entry =>
+    entry.student_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Header */}
-      <div className="bg-white shadow-md border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              <span className="text-2xl">←</span>
-              <span className="font-medium">Back</span>
-            </button>
-            <div className="text-center flex-1">
-              <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                🏆 Leaderboard
-              </h1>
-              <p className="text-gray-600 mt-1">Top students by coins earned</p>
-            </div>
-            <div className="w-20"></div> {/* Spacer for centering */}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Current User Rank Card (if not in top visible) */}
-        {currentUserRank && currentUserRank.rank > 10 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <span>📍</span>
-              <span>Your Rank</span>
-            </h2>
-            <LeaderboardCard entry={currentUserRank} isCurrentUser={true} />
-          </div>
-        )}
-
-        {/* Top Rankings */}
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <span>👑</span>
-            <span>Top Students</span>
-          </h2>
-        </div>
-
-        {/* Leaderboard List */}
-        {leaderboard.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <span className="text-6xl mb-4 block">📊</span>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">No Rankings Yet</h3>
-            <p className="text-gray-600">
-              Complete tasks to earn coins and appear on the leaderboard!
+    <Layout>
+      <main className="flex-1 flex flex-col gap-4 mt-8">
+        {/* Header */}
+        <div className="flex flex-wrap justify-between items-center gap-4 px-4">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+              Leaderboard
+            </h1>
+            <p className="text-slate-400 text-base font-normal leading-normal">
+              See who's on top this week.
             </p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {leaderboard.map((entry) => (
-              <LeaderboardCard
-                key={entry.student_id}
-                entry={entry}
-                isCurrentUser={user?.id === entry.student_id}
-              />
-            ))}
-          </div>
-        )}
+        </div>
 
-        {/* Footer Info */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">💡</span>
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-2">How to Earn Coins</h3>
-              <ul className="text-gray-600 space-y-1 text-sm">
-                <li>• Complete assigned tasks to earn coins</li>
-                <li>• Each task has a coin reward set by your teacher</li>
-                <li>• Climb the leaderboard by completing more tasks</li>
-                <li>• Check your dashboard for available tasks</li>
-              </ul>
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3">
+          {/* Filter Buttons */}
+          <div className="flex w-full sm:w-auto">
+            <div className="flex h-10 flex-1 items-center justify-center rounded-xl bg-[#223149] p-1">
+              <label className="flex flex-1 cursor-pointer items-center justify-center rounded-lg h-8 px-4 bg-primary text-white text-sm font-medium">
+                <span className="truncate">This Week</span>
+              </label>
+              <label className="flex flex-1 cursor-pointer items-center justify-center rounded-lg h-8 px-4 text-slate-400 hover:text-white text-sm font-medium transition-colors">
+                <span className="truncate">This Month</span>
+              </label>
+              <label className="flex flex-1 cursor-pointer items-center justify-center rounded-lg h-8 px-4 text-slate-400 hover:text-white text-sm font-medium transition-colors">
+                <span className="truncate">All Time</span>
+              </label>
             </div>
           </div>
+
+          {/* Search */}
+          <div className="relative w-full sm:w-auto sm:max-w-xs">
+            <svg 
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              className="w-full h-10 pl-10 pr-4 rounded-xl bg-[#223149] text-white placeholder:text-[#90a7cb] border border-transparent focus:border-primary focus:ring-0 text-sm focus:outline-none"
+              placeholder="Find user..."
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
-      </div>
-    </div>
+
+        {/* Leaderboard Table */}
+        <div className="px-4 py-3">
+          <div className="flex overflow-hidden rounded-xl border border-[#314668] bg-[#182334]/50">
+            {loading ? (
+              <div className="w-full flex items-center justify-center py-12">
+                <div className="text-center">
+                  <svg className="animate-spin h-12 w-12 text-primary mx-auto mb-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <p className="text-slate-400">Loading leaderboard...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="w-full p-6">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                  <p className="text-red-400">Error: {error}</p>
+                </div>
+              </div>
+            ) : filteredLeaderboard.length === 0 ? (
+              <div className="w-full p-12 text-center">
+                <p className="text-slate-400">No users found</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead className="bg-transparent">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-white/70 w-24 text-sm font-medium leading-normal">
+                      Rank
+                    </th>
+                    <th className="px-6 py-4 text-left text-white/70 text-sm font-medium leading-normal">
+                      Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-white/70 text-sm font-medium leading-normal">
+                      <div className="flex items-center gap-2">
+                        <span>Total Coins</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#314668]">
+                  {filteredLeaderboard.map((entry) => {
+                    const isCurrentUser = user?.id === entry.student_id;
+                    const isTop3 = entry.rank <= 3;
+                    
+                    return (
+                      <tr
+                        key={entry.student_id}
+                        className={`transition-colors ${
+                          isCurrentUser 
+                            ? 'bg-primary/20 ring-1 ring-inset ring-primary' 
+                            : 'hover:bg-white/5'
+                        }`}
+                      >
+                        <td className="h-[72px] px-6 py-2 text-white text-base font-medium">
+                          {isTop3 ? (
+                            <div className="flex items-center gap-2">
+                              <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                              </svg>
+                              <span>{entry.rank}</span>
+                            </div>
+                          ) : (
+                            <span>{entry.rank}</span>
+                          )}
+                        </td>
+                        <td className={`h-[72px] px-6 py-2 text-sm leading-normal ${
+                          isCurrentUser ? 'text-white font-semibold' : 'text-white font-normal'
+                        }`}>
+                          <Link 
+                            to={`/profile/${entry.student_id}`}
+                            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                          >
+                            <img
+                              className="w-8 h-8 rounded-full object-cover"
+                              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(entry.student_name)}&background=607AFB&color=fff`}
+                              alt={entry.student_name}
+                            />
+                            <span>{entry.student_name}{isCurrentUser ? ' (You)' : ''}</span>
+                          </Link>
+                        </td>
+                        <td className={`h-[72px] px-6 py-2 text-sm leading-normal ${
+                          isCurrentUser ? 'text-white/90 font-semibold' : 'text-[#90a7cb] font-normal'
+                        }`}>
+                          {entry.total_coins.toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </main>
+    </Layout>
   );
 };

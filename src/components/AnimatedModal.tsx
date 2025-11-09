@@ -72,14 +72,14 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
   };
 
   const variantStyles = {
-    default: 'bg-indigo-600 hover:bg-indigo-700',
-    success: 'bg-green-600 hover:bg-green-700',
-    danger: 'bg-red-600 hover:bg-red-700',
+    default: 'bg-codedex-yellow text-black shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px]',
+    success: 'bg-codedex-green text-black shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px]',
+    danger: 'bg-codedex-pink text-white shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px]',
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75 animate-fade-in"
       onClick={(e) => {
         // Close on backdrop click
         if (e.target === e.currentTarget) {
@@ -88,19 +88,19 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
       }}
     >
       <div
-        className={`bg-white rounded-lg shadow-2xl ${sizeClasses[size]} w-full overflow-hidden animate-scale-in`}
+        className={`bg-codedex-slate rounded-md shadow-brutal-xl border-2 border-gray-700 ${sizeClasses[size]} w-full overflow-hidden animate-scale-in`}
         style={{
           animation: 'scaleIn 0.2s ease-out',
         }}
       >
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+        <div className="bg-codedex-navy border-b-2 border-gray-700 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-white">{title}</h3>
+            <h3 className="text-2xl font-bold text-gray-100">{title}</h3>
             <button
               onClick={onClose}
               disabled={primaryActionLoading}
-              className="text-white hover:text-gray-200 transition-colors disabled:opacity-50"
+              className="text-gray-300 hover:text-gray-100 transition-colors disabled:opacity-50"
               aria-label="Close"
             >
               <svg
@@ -119,16 +119,16 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
         </div>
 
         {/* Modal Content */}
-        <div className="px-6 py-4">{children}</div>
+        <div className="px-6 py-4 bg-codedex-slate">{children}</div>
 
         {/* Modal Actions */}
         {(onPrimaryAction || onSecondaryAction) && (
-          <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+          <div className="bg-codedex-navy border-t-2 border-gray-700 px-6 py-4 flex justify-end gap-3">
             {/* Secondary Action (Cancel) */}
             <button
               onClick={handleSecondaryAction}
               disabled={primaryActionLoading}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="px-4 py-2 bg-transparent border-2 border-gray-600 text-gray-300 rounded-sm hover:bg-codedex-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
               {secondaryActionText}
             </button>
@@ -138,11 +138,11 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
               <button
                 onClick={onPrimaryAction}
                 disabled={primaryActionDisabled || primaryActionLoading}
-                className={`px-4 py-2 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium ${variantStyles[variant]} min-w-[100px]`}
+                className={`px-4 py-2 font-bold rounded-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brutal disabled:hover:translate-x-0 disabled:hover:translate-y-0 ${variantStyles[variant]} min-w-[100px]`}
               >
                 {primaryActionLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-none h-4 w-4 border-b-2 border-current"></div>
                     <span>Loading...</span>
                   </span>
                 ) : (

@@ -62,32 +62,32 @@ export const StudentSelector = ({ selectedStudentIds, onChange }: StudentSelecto
   if (loading) {
     return (
       <div className="text-center py-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">Memuat daftar siswa...</p>
+        <div className="animate-spin rounded-none h-8 w-8 border-b-2 border-codedex-cyan mx-auto"></div>
+        <p className="mt-2 text-gray-300">Memuat daftar siswa...</p>
       </div>
     );
   }
 
   return (
-    <div className="border border-gray-300 rounded-md p-4">
+    <div className="bg-codedex-navy border-2 border-gray-600 rounded-none p-4">
       {/* Header with selection count */}
       <div className="flex justify-between items-center mb-3">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-bold text-gray-100">
           Pilih Siswa ({selectedStudentIds.length} dipilih)
         </h3>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={selectAll}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+            className="text-xs text-codedex-cyan hover:text-codedex-yellow font-bold transition-colors"
           >
             Pilih Semua
           </button>
-          <span className="text-gray-400">|</span>
+          <span className="text-gray-600">|</span>
           <button
             type="button"
             onClick={deselectAll}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+            className="text-xs text-codedex-cyan hover:text-codedex-yellow font-bold transition-colors"
           >
             Hapus Semua
           </button>
@@ -101,38 +101,45 @@ export const StudentSelector = ({ selectedStudentIds, onChange }: StudentSelecto
           placeholder="Cari siswa..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          className="w-full px-3 py-2 bg-codedex-slate border-2 border-gray-600 text-gray-100 rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan text-sm placeholder-gray-500"
         />
       </div>
 
       {/* Student list */}
-      <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-md">
+      <div className="max-h-64 overflow-y-auto border-2 border-gray-600 rounded-none bg-codedex-slate">
         {filteredStudents.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-400">
             {searchQuery ? 'Tidak ada siswa yang cocok dengan pencarian' : 'Tidak ada siswa terdaftar'}
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
-            {filteredStudents.map((student) => (
-              <label
-                key={student.id}
-                className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedStudentIds.includes(student.id)}
-                  onChange={() => toggleStudent(student.id)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <span className="ml-3 text-sm text-gray-900">{student.full_name}</span>
-              </label>
-            ))}
+          <div className="divide-y divide-gray-700">
+            {filteredStudents.map((student) => {
+              const isSelected = selectedStudentIds.includes(student.id);
+              return (
+                <label
+                  key={student.id}
+                  className={`flex items-center px-3 py-2 cursor-pointer transition-all ${
+                    isSelected
+                      ? 'bg-codedex-cyan text-black font-bold'
+                      : 'hover:bg-codedex-navy text-gray-100'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleStudent(student.id)}
+                    className="h-4 w-4 text-codedex-cyan focus:ring-codedex-cyan border-gray-600 rounded-none"
+                  />
+                  <span className="ml-3 text-sm">{student.full_name}</span>
+                </label>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* Help text */}
-      <p className="mt-2 text-xs text-gray-500">
+      <p className="mt-2 text-xs text-gray-400">
         {selectedStudentIds.length === 0
           ? 'Pilih minimal satu siswa untuk ditugaskan'
           : `${selectedStudentIds.length} siswa akan menerima tugas ini`}

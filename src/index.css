@@ -2,22 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom global styles */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Ini adalah @layer base BARU kita.
+  Kita mengganti semua style Codedex (bg-codedex-dark, background-image)
+  dengan style Elegant dari Stitch (bg-background-dark, font-family 'Inter').
+*/
+@layer base {
+  body {
+    @apply bg-background-dark text-text-primary-dark;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
+/* Kita bisa tetap simpan style untuk 'code' 
+  jika kita membutuhkannya nanti.
+*/
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 
-/* Custom utility classes */
+/* Kita juga simpan animasi 'spin' kustom Anda, 
+  ini tidak akan mengganggu desain baru.
+*/
 .animate-spin {
   animation: spin 1s linear infinite;
 }

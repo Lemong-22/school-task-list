@@ -5,16 +5,16 @@
  */
 
 import React, { useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useProfile } from '../hooks/useProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useInventory } from '../hooks/useInventory';
-import { RARITY_CONFIG, MAX_EQUIPPED_BADGES } from '../types/shop';
+import { Layout } from '../components/Layout';
+import { MAX_EQUIPPED_BADGES } from '../types/shop';
 
 export const ProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const location = useLocation();
-  const navigate = useNavigate();
   const { user } = useAuth();
   
   // Determine the actual userId to fetch:
@@ -23,7 +23,7 @@ export const ProfilePage: React.FC = () => {
   const actualUserId = location.pathname === '/profile/me' ? 'me' : userId;
   
   const { profile, loading, error, updateFullName } = useProfile(actualUserId);
-  const { inventory, loading: inventoryLoading } = useInventory(profile?.id);
+  const { inventory } = useInventory(profile?.id);
   
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
@@ -66,305 +66,163 @@ export const ProfilePage: React.FC = () => {
     setIsUpdating(false);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
-
   const getRoleDisplayName = (role: string) => {
-    return role === 'student' ? 'Siswa' : 'Guru';
+    return role === 'student' ? 'Student' : 'Teacher';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading profile...</p>
+      <Layout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <svg className="animate-spin h-12 w-12 text-primary mx-auto mb-4" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            <p className="text-slate-400">Loading profile...</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
-          <div className="text-center">
-            <span className="text-6xl mb-4 block">⚠️</span>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Profile Not Found</h2>
-            <p className="text-gray-600 mb-6">{error || 'This profile does not exist'}</p>
-            <button
-              onClick={() => navigate(-1)}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Go Back
-            </button>
+      <Layout>
+        <div className="flex items-center justify-center py-12">
+          <div className="bg-component-dark rounded-lg shadow-md border border-border-dark p-8 max-w-md">
+            <div className="text-center">
+              <span className="text-6xl mb-4 block">⚠️</span>
+              <h2 className="text-2xl font-bold text-text-primary-dark mb-2">Profile Not Found</h2>
+              <p className="text-text-secondary-dark mb-6">{error || 'This profile does not exist'}</p>
+            </div>
           </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
+  // Get active title from profile
+  const activeTitle = profile.active_title_id ? {
+    name: "Active Title" // This would come from joined data in real implementation
+  } : null;
+
+  // Get equipped badges from inventory
+  const equippedBadges = inventory
+    ?.filter(item => item.type === 'badge' && item.is_equipped)
+    .slice(0, MAX_EQUIPPED_BADGES) || [];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Header */}
-      <div className="bg-white shadow-md border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              <span className="text-2xl">←</span>
-              <span className="font-medium">Back</span>
-            </button>
-            <div className="text-center flex-1">
-              <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                👤 User Profile
-              </h1>
-            </div>
-            <div className="w-20"></div> {/* Spacer for centering */}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Profile Card */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden backdrop-blur-lg bg-opacity-95 border border-white/20">
-          {/* Header Section with Glassmorphism */}
-          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 text-white">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                {/* Name with Edit Functionality */}
-                {isEditing ? (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={editedName}
-                      onChange={(e) => setEditedName(e.target.value)}
-                      className="w-full px-4 py-2 text-2xl font-bold rounded-lg text-gray-800 border-2 border-white focus:outline-none focus:ring-2 focus:ring-white"
-                      placeholder="Enter your name"
-                      disabled={isUpdating}
-                    />
-                    {updateError && (
-                      <p className="text-red-200 text-sm">{updateError}</p>
-                    )}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleSaveEdit}
-                        disabled={isUpdating}
-                        className="px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-colors font-medium disabled:opacity-50"
-                      >
-                        {isUpdating ? 'Saving...' : 'Save'}
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        disabled={isUpdating}
-                        className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors font-medium disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-3xl font-bold">{profile.full_name}</h2>
-                    {isOwnProfile && (
-                      <button
-                        onClick={handleEditClick}
-                        className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                        title="Edit name"
-                      >
-                        <span className="text-xl">✏️</span>
-                      </button>
-                    )}
-                  </div>
-                )}
-                
-                <div className="mt-2 flex items-center gap-4">
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
-                    {getRoleDisplayName(profile.role)}
-                  </span>
-                  {isOwnProfile && (
-                    <span className="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-sm font-bold">
-                      Your Profile
-                    </span>
+    <Layout>
+      {/* Profile Header */}
+      <div className="flex p-4 border-b border-gray-500/20 pb-8">
+        <div className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+          <div className="flex gap-4">
+            <div 
+              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0"
+              style={{
+                backgroundImage: `url(https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=607AFB&color=fff&size=128)`
+              }}
+            ></div>
+            <div className="flex flex-col justify-center">
+              {isEditing ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="bg-[#223149] text-white px-3 py-2 rounded-lg border border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter name"
+                  />
+                  {updateError && (
+                    <p className="text-red-400 text-sm">{updateError}</p>
                   )}
-                </div>
-              </div>
-
-              {/* Coin Display */}
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl px-6 py-4 text-center border border-white/30">
-                <div className="text-4xl mb-2">🪙</div>
-                <div className="text-3xl font-bold">{profile.total_coins}</div>
-                <div className="text-sm opacity-90">Total Coins</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Information */}
-          <div className="p-8 space-y-6">
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Email - Only visible on own profile */}
-              {isOwnProfile && user?.email && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">📧</span>
-                    <h3 className="font-semibold text-gray-700">Email</h3>
-                  </div>
-                  <p className="text-gray-900">{user.email}</p>
-                  <p className="text-xs text-gray-500 mt-1">Only visible to you</p>
-                </div>
-              )}
-
-              {/* Join Date */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">📅</span>
-                  <h3 className="font-semibold text-gray-700">Bergabung Sejak</h3>
-                </div>
-                <p className="text-gray-900">{formatDate(profile.created_at)}</p>
-              </div>
-            </div>
-
-            {/* Only show cosmetic items for students */}
-            {profile.role === 'student' && (
-              <>
-                {/* Title Slot */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gradient-to-br from-gray-50 to-gray-100">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <span className="text-2xl">📜</span>
-                  <h3 className="text-lg font-bold text-gray-700">Gelar (Title)</h3>
-                </div>
-                {(() => {
-                  const equippedTitle = inventory?.find(item => item.type === 'title' && item.is_equipped);
-                  return equippedTitle ? (
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-lg py-6 px-6">
-                      <div className="text-3xl mb-2">📜</div>
-                      <h4 className="text-xl font-bold text-gray-800 mb-1">{equippedTitle.name}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{equippedTitle.description}</p>
-                      <span className={`inline-block text-xs font-semibold px-3 py-1 rounded ${RARITY_CONFIG[equippedTitle.rarity].color}`}>
-                        {RARITY_CONFIG[equippedTitle.rarity].label}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="bg-white border-2 border-gray-200 rounded-lg py-8 px-6">
-                      <p className="text-gray-400 text-sm">No title selected</p>
-                      {isOwnProfile && (
-                        <button
-                          onClick={() => navigate('/shop')}
-                          className="mt-3 text-indigo-600 hover:text-indigo-700 text-xs font-medium"
-                        >
-                          Buy Title at Shop →
-                        </button>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-
-            {/* Badge Gallery */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gradient-to-br from-gray-50 to-gray-100">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-2xl">🎖️</span>
-                <h3 className="text-lg font-bold text-gray-700">Koleksi Lencana (Badges)</h3>
-              </div>
-              
-              {(() => {
-                const equippedBadges = inventory?.filter(item => item.type === 'badge' && item.is_equipped) || [];
-                const hasEquippedBadges = equippedBadges.length > 0;
-                
-                return (
-                  <>
-                    {/* Badge Grid - 6 slots */}
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-                      {Array.from({ length: MAX_EQUIPPED_BADGES }).map((_, index) => {
-                        const badge = equippedBadges[index];
-                        return (
-                          <div
-                            key={index}
-                            className={`aspect-square rounded-lg flex flex-col items-center justify-center transition-all ${
-                              badge
-                                ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300'
-                                : 'bg-white border-2 border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            {badge ? (
-                              <>
-                                <div className="text-4xl mb-1">{badge.icon_url || '🎖️'}</div>
-                                <span className="text-xs font-semibold text-gray-700 text-center px-1 break-words">
-                                  {badge.name}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-3xl text-gray-300">🔒</span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    
-                    {!hasEquippedBadges && (
-                      <div className="text-center mt-4">
-                        <p className="text-gray-400 text-sm">No badges selected</p>
-                        {isOwnProfile && (
-                          <button
-                            onClick={() => navigate('/shop')}
-                            className="mt-2 text-indigo-600 hover:text-indigo-700 text-xs font-medium"
-                          >
-                            Buy Badges at Shop →
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-            
-                {/* Manage Items Button (Own Profile Only) */}
-                {isOwnProfile && (
-                  <div className="text-center">
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => navigate('/inventory')}
-                      className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-semibold shadow-md"
+                      onClick={handleSaveEdit}
+                      disabled={isUpdating}
+                      className="bg-primary hover:bg-primary/90 text-white px-4 py-1 rounded-lg text-sm font-medium transition-colors"
                     >
-                      🎒 Manage My Items
+                      {isUpdating ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Cancel
                     </button>
                   </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Info Box - Only for students */}
-        {profile.role === 'student' && (
-          <div className="mt-6 bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">💡</span>
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-2">Tentang Profil</h3>
-              <ul className="text-gray-600 space-y-1 text-sm">
-                <li>• Profil bersifat publik dan dapat dilihat oleh siswa lain</li>
-                <li>• Collect more coins by completing tasks</li>
-                <li>• Buy titles and badges at Coin Shop to personalize your profile</li>
-                {isOwnProfile && <li>• You can change your name by clicking the edit icon</li>}
-              </ul>
+                </div>
+              ) : (
+                <>
+                  <p className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
+                    {profile.full_name}
+                  </p>
+                  <p className="text-gray-400 text-base font-normal leading-normal">
+                    {getRoleDisplayName(profile.role)} • {profile.total_coins.toLocaleString()} Coins
+                  </p>
+                </>
+              )}
             </div>
           </div>
+          {isOwnProfile && !isEditing && (
+            <button 
+              onClick={handleEditClick}
+              className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium leading-normal w-full max-w-[480px] sm:w-auto"
+            >
+              <span className="truncate">Edit Profile</span>
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* My Title Section */}
+      <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
+        My Title
+      </h2>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 p-4">
+        {activeTitle ? (
+          <div className="flex flex-col gap-3 rounded-lg bg-[#1F2937] p-4 border border-primary/80">
+            <div className="text-center">
+              <p className="text-white font-medium">{activeTitle.name}</p>
+            </div>
+            <button className="w-full rounded-md bg-primary text-white text-sm font-medium h-9 transition-all">
+              Active Title
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 rounded-lg bg-[#1F2937] p-4 border border-transparent">
+            <div className="text-center py-4">
+              <p className="text-gray-400 text-sm">No title equipped</p>
+            </div>
+          </div>
         )}
       </div>
-    </div>
+
+      {/* My Badges Section */}
+      <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-8">
+        My Badges
+      </h2>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 p-4">
+        {Array.from({ length: MAX_EQUIPPED_BADGES }).map((_, index) => {
+          const badge = equippedBadges[index];
+          return (
+            <div key={index} className="flex flex-col gap-3 rounded-lg bg-[#1F2937] p-4">
+              {badge ? (
+                <div className="text-center">
+                  <div className="text-4xl mb-2">{badge.icon_url || '🎖️'}</div>
+                  <p className="text-white text-sm font-medium">{badge.name}</p>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <span className="text-4xl text-gray-600">🔒</span>
+                  <p className="text-gray-500 text-xs mt-2">Empty Slot</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Layout>
   );
 };

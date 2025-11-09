@@ -93,13 +93,10 @@ export const InventoryPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-dark flex items-center justify-center">
+      <div className="min-h-screen bg-codedex-dark flex items-center justify-center">
         <div className="text-center">
-          <svg className="animate-spin h-16 w-16 text-primary mx-auto mb-4" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <p className="text-text-secondary-dark text-lg">Loading inventory...</p>
+          <div className="animate-spin rounded-none-full h-16 w-16 border-b-4 border-codedex-yellow mx-auto mb-4"></div>
+          <p className="text-gray-300 text-lg">Loading inventory...</p>
         </div>
       </div>
     );
@@ -107,15 +104,15 @@ export const InventoryPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background-dark flex items-center justify-center">
-        <div className="bg-component-dark rounded-lg shadow-md border border-border-dark p-8 max-w-md">
+      <div className="min-h-screen bg-codedex-dark flex items-center justify-center">
+        <div className="bg-codedex-slate rounded-none-none shadow-brutal-lg border-2 border-gray-700 p-8 max-w-md">
           <div className="text-center">
             <span className="text-6xl mb-4 block">⚠️</span>
-            <h2 className="text-2xl font-bold text-text-primary-dark mb-2">Error Loading Inventory</h2>
-            <p className="text-text-secondary-dark mb-6">{error}</p>
+            <h2 className="text-2xl font-bold text-gray-100 mb-2">Error Loading Inventory</h2>
+            <p className="text-gray-400 mb-6">{error}</p>
             <button
               onClick={() => navigate(-1)}
-              className="bg-primary text-white font-bold px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+              className="bg-codedex-yellow text-black font-bold px-6 py-2 rounded-none-none shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
             >
               Go Back
             </button>
@@ -126,11 +123,11 @@ export const InventoryPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background-dark">
-      <LoadingBar isLoading={loading || equippingTitle || equippingBadges} />
+    <div className="min-h-screen bg-codedex-dark">
+      <LoadingBar isLoading={loading} />
       
       {/* Header */}
-      <header className="bg-component-dark border-b border-border-dark">
+      <header className="bg-codedex-navy border-b-2 border-codedex-slate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <button
@@ -158,17 +155,15 @@ export const InventoryPage: React.FC = () => {
         transition={{ duration: 0.4 }}
       >
         {isEmpty ? (
-          <div className="bg-component-dark rounded-lg shadow-md border border-border-dark p-12 text-center">
+          <div className="bg-codedex-slate rounded-none-none shadow-brutal-lg border-2 border-gray-700 p-12 text-center">
             <span className="text-6xl mb-4 block">📦</span>
-            <h3 className="text-xl font-bold text-text-primary-dark mb-2">Your Inventory is Empty</h3>
-            <p className="text-text-secondary-dark mb-6">
-              Visit the Coin Shop to purchase titles and badges!
-            </p>
+            <h3 className="text-xl font-bold text-gray-100 mb-2">Empty Inventory</h3>
+            <p className="text-gray-400 mb-6">You don't have any items yet. Visit the Shop to purchase items!</p>
             <button
               onClick={() => navigate('/shop')}
-              className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors"
+              className="px-6 py-3 bg-codedex-yellow text-black font-bold rounded-none-none shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
             >
-              Go to Shop
+              🛒 Go to Shop
             </button>
           </div>
         ) : (

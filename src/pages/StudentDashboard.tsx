@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTasks } from '../hooks/useTasks';
-import { CoinDisplay } from '../components/CoinDisplay';
-import { TaskList } from '../components/TaskList';
+import { Layout } from '../components/Layout';
+import { TaskCard } from '../components/TaskCard';
 import { CoinRewardModal } from '../components/CoinRewardModal';
 import { CoinRewardResult } from '../types/coin';
 import { supabase } from '../lib/supabaseClient';
+import { TaskFilters } from '../components/TaskFilters';
+import { EmptyState } from '../components/EmptyState';
 
 export const StudentDashboard = () => {
-  const { user, profile, signOut, refreshProfile } = useAuth();
-  const navigate = useNavigate();
-  const { tasks, loading, error, refetch } = useTasks(user?.id || null);
+  const { user, profile, refreshProfile } = useAuth();
+  
+  // Filter state
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'all',
+    subject: 'all',
+  });
+
+  // Convert filter state to hook format
+  const hookFilters = {
+    subject: filters.subject === 'all' ? null : filters.subject,
+    status: filters.status as 'all' | 'pending' | 'completed' | 'overdue',
+    search: filters.search,
+  };
+
+  const { tasks, loading, error, refetch } = useTasks(user?.id || null, hookFilters);
   const [currentCoins, setCurrentCoins] = useState(profile?.total_coins || 0);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [rewardData, setRewardData] = useState<CoinRewardResult | null>(null);
@@ -21,15 +36,6 @@ export const StudentDashboard = () => {
   useEffect(() => {
     setCurrentCoins(profile?.total_coins || 0);
   }, [profile?.total_coins]);
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
 
   const handleTaskCompleted = async (reward: CoinRewardResult, taskTitle: string) => {
     // Show the reward modal FIRST before refetching
@@ -57,116 +63,110 @@ export const StudentDashboard = () => {
     }
   };
 
+  // Clear filters function
+  const clearFilters = () => {
+    setFilters({ search: '', status: 'all', subject: 'all' });
+  };
+
+  // Check if any filters are active
+  const filtersAreActive = 
+    filters.search !== '' || 
+    filters.status !== 'all' || 
+    filters.subject !== 'all';
+
+  // Calculate stats
+  const pendingTasks = tasks.filter(t => !t.is_completed).length;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">Student Dashboard</h1>
-            
-            <div className="flex items-center gap-4">
-              {/* Coin Display */}
-              <CoinDisplay totalCoins={currentCoins} />
-              
-              {/* Shop Link */}
-              <button
-                onClick={() => navigate('/shop')}
-                className="px-4 py-2 text-sm font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
-              >
-                🛒 Shop
-              </button>
-              
-              {/* Inventory Link */}
-              <button
-                onClick={() => navigate('/inventory')}
-                className="px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-md transition-colors"
-              >
-                🎒 Inventory
-              </button>
-              
-              {/* Leaderboard Link */}
-              <button
-                onClick={() => navigate('/leaderboard')}
-                className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
-              >
-                🏆 Leaderboard
-              </button>
-              
-              {/* My Profile Link */}
-              <button
-                onClick={() => navigate('/profile/me')}
-                className="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors"
-              >
-                👤 My Profile
-              </button>
-              
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+    <Layout>
+      <main className="flex-1 py-8">
+        {/* Page Header */}
+        <div className="px-4 pb-8">
+          <p className="text-text-primary-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+            My Dashboard
+          </p>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Welcome, {profile?.full_name || 'Student'}!
-              </h2>
-              <p className="text-gray-600 mt-1">{user?.email}</p>
-            </div>
-            
-            {/* Info Section */}
-            <div className="text-right">
-              <p className="text-sm text-gray-600">
-                Complete tasks on time to earn coins! 🪙
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Be in the top 3 to get bonus coins
-              </p>
-            </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+          {/* Total Coins */}
+          <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-component-dark shadow-md">
+            <p className="text-text-secondary-dark text-sm font-medium leading-normal">Total Coins</p>
+            <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{currentCoins}</p>
+          </div>
+
+          {/* Tasks Pending */}
+          <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-component-dark shadow-md">
+            <p className="text-text-secondary-dark text-sm font-medium leading-normal">Tasks Pending</p>
+            <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{pendingTasks}</p>
+          </div>
+
+          {/* Tasks Completed */}
+          <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-component-dark shadow-md">
+            <p className="text-text-secondary-dark text-sm font-medium leading-normal">Tasks Completed</p>
+            <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{tasks.length - pendingTasks}</p>
           </div>
         </div>
 
-        {/* Tasks Section */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">My Tasks</h3>
-          
+        {/* Section Header */}
+        <h2 className="text-text-primary-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4 pt-10">
+          My Tasks
+        </h2>
+
+        {/* Task Filters */}
+        <div className="px-4">
+          <TaskFilters onFilterChange={setFilters} />
+        </div>
+
+        {/* Task List */}
+        <div className="px-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <svg className="animate-spin h-12 w-12 text-indigo-600 mx-auto mb-4" viewBox="0 0 24 24">
+                <svg className="animate-spin h-12 w-12 text-primary mx-auto mb-4" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                <p className="text-gray-600">Loading tasks...</p>
+                <p className="text-text-secondary-dark">Loading tasks...</p>
               </div>
             </div>
           ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-600">Error: {error}</p>
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <p className="text-red-400">Error: {error}</p>
               <button
                 onClick={refetch}
-                className="mt-2 text-sm text-red-700 hover:text-red-800 underline"
+                className="mt-2 text-sm text-red-400 hover:text-red-300 underline"
               >
                 Try again
               </button>
             </div>
+          ) : tasks.length === 0 ? (
+            <>
+              {filtersAreActive ? (
+                <EmptyState onClearFilters={clearFilters} />
+              ) : (
+                <div className="bg-component-dark rounded-lg shadow-md p-12 text-center">
+                  <div className="text-6xl mb-4">📋</div>
+                  <p className="text-text-primary-dark font-medium mb-2">
+                    No tasks assigned yet
+                  </p>
+                  <p className="text-text-secondary-dark">
+                    Check back later for new assignments from your teacher!
+                  </p>
+                </div>
+              )}
+            </>
           ) : (
-            <TaskList
-              assignments={tasks}
-              studentId={user?.id || ''}
-              onTaskCompleted={handleTaskCompleted}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {tasks.map((assignment) => (
+                <TaskCard
+                  key={assignment.id}
+                  assignment={assignment}
+                  studentId={user?.id || ''}
+                  onTaskCompleted={handleTaskCompleted}
+                />
+              ))}
+            </div>
           )}
         </div>
       </main>
@@ -178,6 +178,6 @@ export const StudentDashboard = () => {
         rewardData={rewardData}
         taskTitle={completedTaskTitle}
       />
-    </div>
+    </Layout>
   );
 };
