@@ -67,6 +67,19 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               Shop
             </NavLink>
 
+            {profile?.role === 'student' && (
+              <NavLink
+                to="/inventory"
+                className={({ isActive }) =>
+                  isActive 
+                    ? 'text-primary text-sm font-bold leading-normal' 
+                    : 'text-text-primary-dark hover:text-primary text-sm font-medium leading-normal transition-colors'
+                }
+              >
+                Inventory
+              </NavLink>
+            )}
+
             <NavLink
               to="/profile/me"
               className={({ isActive }) =>

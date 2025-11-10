@@ -16,6 +16,7 @@ export interface Task {
   coin_reward: number;
   created_at: string;
   updated_at: string;
+  status?: string; // Assignment status: 'Pending' or 'Graded'
 }
 
 /**

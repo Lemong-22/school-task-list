@@ -204,11 +204,74 @@ export function useEquipBadges(onSuccess?: () => void): UseEquipBadgesResult {
   };
 }
 
+interface UseEquipNamecardResult {
+  equipNamecard: (namecardId: string | null) => Promise<EquipTitleResult>;
+  loading: boolean;
+  error: string | null;
+}
+
+/**
+ * Hook to equip a namecard
+ */
+export function useEquipNamecard(onSuccess?: () => void): UseEquipNamecardResult {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const equipNamecard = useCallback(async (namecardId: string | null): Promise<EquipTitleResult> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data, error: rpcError } = await supabase.rpc('equip_namecard', {
+        p_user_id: user.id,
+        p_namecard_id: namecardId
+      });
+
+      if (rpcError) {
+        throw rpcError;
+      }
+
+      const result = data as EquipTitleResult;
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to equip namecard');
+      }
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      return result;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to equip namecard';
+      console.error('Equip namecard error:', err);
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [onSuccess]);
+
+  return {
+    equipNamecard,
+    loading,
+    error
+  };
+}
+
 interface UseInventoryByTypeResult {
   titles: InventoryItem[];
   badges: InventoryItem[];
+  namecards: InventoryItem[];
   equippedTitle: InventoryItem | null;
   equippedBadges: InventoryItem[];
+  equippedNamecard: InventoryItem | null;
   isEmpty: boolean;
   loading: boolean;
   error: string | null;
@@ -223,15 +286,19 @@ export function useInventoryByType(userId?: string): UseInventoryByTypeResult {
 
   const titles = inventory?.filter(item => item.type === 'title') || [];
   const badges = inventory?.filter(item => item.type === 'badge') || [];
+  const namecards = inventory?.filter(item => item.type === 'namecard') || [];
   
   const equippedTitle = titles.find(item => item.is_equipped) || null;
   const equippedBadges = badges.filter(item => item.is_equipped);
+  const equippedNamecard = namecards.find(item => item.is_equipped) || null;
 
   return {
     titles,
     badges,
+    namecards,
     equippedTitle,
     equippedBadges,
+    equippedNamecard,
     isEmpty: inventory?.length === 0,
     loading,
     error,

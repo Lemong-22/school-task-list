@@ -4,6 +4,8 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import { MessageCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeacherTasks } from '../hooks/useTeacherTasks';
+import { useStudentCount } from '../hooks/useStudentCount';
+import { useTotalCoinsAwarded } from '../hooks/useTotalCoinsAwarded';
 import { Layout } from '../components/Layout';
 import { TaskFilters } from '../components/TaskFilters';
 import { EmptyState } from '../components/EmptyState';
@@ -32,6 +34,8 @@ export const TeacherDashboard = () => {
   };
 
   const { tasks, loading, error, deleteTask } = useTeacherTasks(user?.id || null, hookFilters);
+  const { count: totalStudents } = useStudentCount();
+  const { totalCoins: totalCoinsAwarded } = useTotalCoinsAwarded(user?.id || null);
 
   // Clear filters function
   const clearFilters = () => {
@@ -45,10 +49,8 @@ export const TeacherDashboard = () => {
     filters.subject !== 'all';
 
   // Calculate stats
-  const totalStudents = 124; // Hardcoded for now
   const activeAssignments = tasks.length;
-  const submissionsToGrade = 15; // Hardcoded for now
-  const totalCoinsAwarded = profile?.total_coins || 0;
+  const submissionsToGrade = 15; // TODO: Calculate from task_assignments
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -172,8 +174,12 @@ export const TeacherDashboard = () => {
                         {formatDate(task.due_date)}
                       </td>
                       <td className="p-4 text-sm text-text-secondary-dark whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-300">
-                          Pending
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          task.status === 'Graded' 
+                            ? 'bg-green-500/20 text-green-300' 
+                            : 'bg-yellow-500/20 text-yellow-300'
+                        }`}>
+                          {task.status || 'Pending'}
                         </span>
                       </td>
                       <td className="p-4 text-sm text-text-secondary-dark whitespace-nowrap text-right">

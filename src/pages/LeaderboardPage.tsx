@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useAuth } from '../contexts/AuthContext';
 import { Layout } from '../components/Layout';
+import { getNamecardStyle } from '../config/namecardStyles';
 
 export const LeaderboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -116,14 +117,17 @@ export const LeaderboardPage: React.FC = () => {
                   {filteredLeaderboard.map((entry) => {
                     const isCurrentUser = user?.id === entry.student_id;
                     const isTop3 = entry.rank <= 3;
+                    const namecardStyle = getNamecardStyle(entry.active_namecard_name);
                     
                     return (
                       <tr
                         key={entry.student_id}
-                        className={`transition-colors ${
-                          isCurrentUser 
-                            ? 'bg-primary/20 ring-1 ring-inset ring-primary' 
-                            : 'hover:bg-white/5'
+                        className={`transition-all ${
+                          entry.active_namecard_name
+                            ? `${namecardStyle.background} ${namecardStyle.border} ${namecardStyle.effects}`
+                            : isCurrentUser 
+                              ? 'bg-primary/20 ring-1 ring-inset ring-primary' 
+                              : 'hover:bg-white/5'
                         }`}
                       >
                         <td className="h-[72px] px-6 py-2 text-white text-base font-medium">
@@ -138,25 +142,38 @@ export const LeaderboardPage: React.FC = () => {
                             <span>{entry.rank}</span>
                           )}
                         </td>
-                        <td className={`h-[72px] px-6 py-2 text-sm leading-normal ${
-                          isCurrentUser ? 'text-white font-semibold' : 'text-white font-normal'
-                        }`}>
-                          <Link 
-                            to={`/profile/${entry.student_id}`}
-                            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-                          >
-                            <img
-                              className="w-8 h-8 rounded-full object-cover"
-                              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(entry.student_name)}&background=607AFB&color=fff`}
-                              alt={entry.student_name}
-                            />
-                            <span>{entry.student_name}{isCurrentUser ? ' (You)' : ''}</span>
-                          </Link>
+                        <td className="h-[72px] px-6 py-2">
+                          <div className="flex items-center gap-3">
+                            <Link
+                              to={`/profile/${entry.student_id}`}
+                              className={`text-lg font-bold hover:opacity-80 transition-all ${
+                                entry.active_namecard_name ? namecardStyle.textColor : 'text-white hover:text-primary'
+                              }`}
+                            >
+                              {entry.student_name}
+                            </Link>
+                            {entry.active_title_name && (
+                              <span className={`inline-flex items-center px-3 py-1 rounded-lg text-sm font-black italic ${
+                                entry.namecard_rarity === 'legendary' 
+                                  ? 'bg-gradient-to-r from-yellow-600/40 to-orange-600/40 border border-yellow-500/60 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 animate-pulse animate-shimmer' 
+                                  : entry.namecard_rarity === 'epic'
+                                    ? 'bg-gradient-to-r from-purple-600/40 to-pink-600/40 border border-purple-500/60 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 animate-pulse animate-shimmer'
+                                    : entry.namecard_rarity === 'rare'
+                                      ? 'bg-gradient-to-r from-blue-600/40 to-cyan-600/40 border border-blue-500/50 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400'
+                                      : 'bg-gray-700/40 border border-gray-600/50 text-gray-300'
+                              }`}>
+                                「{entry.active_title_name}」
+                              </span>
+                            )}
+                          </div>
                         </td>
-                        <td className={`h-[72px] px-6 py-2 text-sm leading-normal ${
-                          isCurrentUser ? 'text-white/90 font-semibold' : 'text-[#90a7cb] font-normal'
-                        }`}>
-                          {entry.total_coins.toLocaleString()}
+                        <td className="h-[72px] px-6 py-2">
+                          <div className={`flex items-center gap-2 text-base font-bold leading-normal ${
+                            entry.active_namecard_name ? namecardStyle.textColor : 'text-white'
+                          }`}>
+                            <span className="text-lg">🪙</span>
+                            <span>{entry.total_coins.toLocaleString()}</span>
+                          </div>
                         </td>
                       </tr>
                     );

@@ -15,6 +15,7 @@ interface Profile {
   total_coins: number;
   created_at: string;
   active_title_id: string | null;
+  active_namecard_id: string | null;
   equipped_badges: string[];
   // Populated fields (when joining with shop_items)
   active_title?: {
@@ -70,7 +71,7 @@ export const useProfile = (userId: string | undefined): UseProfileResult => {
 
       const { data, error: fetchError } = await supabase
         .from('profiles')
-        .select('id, full_name, role, total_coins, created_at, active_title_id, equipped_badges')
+        .select('id, full_name, role, total_coins, created_at, active_title_id, active_namecard_id, equipped_badges')
         .eq('id', actualUserId)
         .single();
 

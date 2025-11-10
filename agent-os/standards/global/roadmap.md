@@ -176,7 +176,7 @@ Namecards (Your Idea):
 
 Add a new item type to the Shop: "Namecard."
 
-This item, when equipped, changes the background/border of the user's ProfilePage card and their row on the Leaderboard.
+This item, when equipped, changes the background/border of the user's ProfilePage card and their row on the Leaderboard. Also show their title next to their name to make it luxurious
 
 Leaderboard Seasons:
 

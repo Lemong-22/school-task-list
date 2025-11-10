@@ -8,7 +8,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { useInventoryByType, useEquipTitle, useEquipBadges } from '../hooks/useInventory';
+import { useInventoryByType, useEquipTitle, useEquipBadges, useEquipNamecard } from '../hooks/useInventory';
 import { AnimatedModal } from '../components/AnimatedModal';
 import { LoadingBar } from '../components/LoadingBar';
 import { RARITY_CONFIG, ITEM_TYPE_CONFIG, MAX_EQUIPPED_BADGES } from '../types/shop';
@@ -17,14 +17,17 @@ import type { InventoryItem } from '../types/shop';
 export const InventoryPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { titles, badges, equippedTitle, equippedBadges, isEmpty, loading, error, refetch } = useInventoryByType(user?.id);
+  const { titles, badges, namecards, equippedTitle, equippedBadges, equippedNamecard, isEmpty, loading, error, refetch } = useInventoryByType(user?.id);
   const { equipTitle, loading: equippingTitle } = useEquipTitle(() => refetch());
   const { equipBadges, loading: equippingBadges } = useEquipBadges(() => refetch());
+  const { equipNamecard, loading: equippingNamecard } = useEquipNamecard(() => refetch());
 
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [showTitleModal, setShowTitleModal] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState<InventoryItem | null>(null);
   const [showBadgeSaveModal, setShowBadgeSaveModal] = useState(false);
+  const [showNamecardModal, setShowNamecardModal] = useState(false);
+  const [selectedNamecard, setSelectedNamecard] = useState<InventoryItem | null>(null);
 
   // Initialize selected badges from equipped badges
   const equippedBadgeIds = useMemo(() => equippedBadges.map(b => b.id), [equippedBadges.length]);
@@ -88,6 +91,38 @@ export const InventoryPage: React.FC = () => {
       setShowBadgeSaveModal(false);
     } catch (err) {
       console.error('Failed to save badges:', err);
+    }
+  };
+
+  const handleNamecardEquip = (namecard: InventoryItem) => {
+    setSelectedNamecard(namecard);
+    setShowNamecardModal(true);
+  };
+
+  const handleConfirmNamecardEquip = async () => {
+    if (!selectedNamecard) return;
+
+    try {
+      await equipNamecard(selectedNamecard.id);
+      setShowNamecardModal(false);
+      setSelectedNamecard(null);
+    } catch (err) {
+      console.error('Failed to equip namecard:', err);
+    }
+  };
+
+  const handleNamecardUnequip = () => {
+    setSelectedNamecard(null);
+    setShowNamecardModal(true);
+  };
+
+  const handleConfirmNamecardUnequip = async () => {
+    try {
+      await equipNamecard(null);
+      setShowNamecardModal(false);
+      setSelectedNamecard(null);
+    } catch (err) {
+      console.error('Failed to unequip namecard:', err);
     }
   };
 
@@ -239,6 +274,73 @@ export const InventoryPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Namecards Section */}
+            <div className="bg-component-dark rounded-lg shadow-md border border-border-dark overflow-hidden">
+              <div className="bg-gradient-to-r from-yellow-600 to-orange-600 px-6 py-4">
+                <h2 className="text-2xl font-bold text-white">🎨 My Namecards</h2>
+                <p className="text-white text-sm font-medium mt-1">Select 1 namecard to customize your profile background</p>
+              </div>
+              
+              <div className="p-6 bg-background-dark">
+                {namecards.length === 0 ? (
+                  <p className="text-gray-400 text-center py-8">You don't have any namecards yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {namecards.map((namecard) => (
+                      <div
+                        key={namecard.id}
+                        className={`flex flex-col p-4 rounded-lg border-2 transition-all ${
+                          namecard.is_equipped
+                            ? 'border-primary bg-primary/10 ring-2 ring-primary shadow-md'
+                            : 'border-border-dark hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-3xl">{namecard.icon_url || '🎨'}</span>
+                              <div>
+                                <p className="font-bold text-white">{namecard.name}</p>
+                                <span className={`text-xs px-2 py-0.5 rounded ${RARITY_CONFIG[namecard.rarity].color}`}>
+                                  {RARITY_CONFIG[namecard.rarity].label}
+                                </span>
+                              </div>
+                            </div>
+                            {namecard.description && (
+                              <p className="text-xs text-gray-400 mt-2">{namecard.description}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="mt-auto">
+                          {namecard.is_equipped ? (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-bold text-green-400">✓ Equipped</span>
+                              <button
+                                onClick={handleNamecardUnequip}
+                                disabled={equippingNamecard}
+                                className="px-4 py-2 bg-transparent text-red-400 font-medium rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                              >
+                                Lepas
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleNamecardEquip(namecard)}
+                              disabled={equippingNamecard}
+                              className="w-full px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                            >
+                              Pasang
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Badges Section */}
             <div className="bg-component-dark rounded-lg shadow-md border border-border-dark overflow-hidden">
               <div className="bg-pink-600 px-6 py-4">
@@ -353,6 +455,41 @@ export const InventoryPage: React.FC = () => {
           <p className="text-gray-400 text-sm">
             These badges will be displayed in your profile gallery.
           </p>
+        </div>
+      </AnimatedModal>
+
+      {/* Namecard Equip/Unequip Modal */}
+      <AnimatedModal
+        isOpen={showNamecardModal}
+        onClose={() => setShowNamecardModal(false)}
+        title={selectedNamecard ? 'Pasang Namecard' : 'Lepas Namecard'}
+        primaryActionText={selectedNamecard ? 'Pasang' : 'Lepas'}
+        onPrimaryAction={selectedNamecard ? handleConfirmNamecardEquip : handleConfirmNamecardUnequip}
+        primaryActionLoading={equippingNamecard}
+        variant="default"
+      >
+        <div className="text-center py-4">
+          {selectedNamecard ? (
+            <>
+              <div className="text-5xl mb-4">🎨</div>
+              <p className="text-gray-300 text-lg mb-2">
+                Pasang namecard <strong className="text-gray-100">{selectedNamecard.name}</strong>?
+              </p>
+              <p className="text-gray-400 text-sm">
+                This namecard will change your profile background and leaderboard row appearance.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="text-5xl mb-4">❌</div>
+              <p className="text-gray-300 text-lg mb-2">
+                Lepas namecard yang sedang terpasang?
+              </p>
+              <p className="text-gray-400 text-sm">
+                Your profile will use the default background.
+              </p>
+            </>
+          )}
         </div>
       </AnimatedModal>
     </div>
