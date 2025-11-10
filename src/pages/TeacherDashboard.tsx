@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { MessageCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeacherTasks } from '../hooks/useTeacherTasks';
 import { Layout } from '../components/Layout';
 import { TaskFilters } from '../components/TaskFilters';
 import { EmptyState } from '../components/EmptyState';
+import { TaskDrawer } from '../components/TaskDrawer';
 
 export const TeacherDashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  
+  // Drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
   
   // Filter state
   const [filters, setFilters] = useState({
@@ -56,7 +62,7 @@ export const TeacherDashboard = () => {
         {/* Page Header with Button */}
         <div className="flex flex-wrap justify-between items-center gap-4 px-4 pb-8">
           <p className="text-text-primary-dark text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">
-            Dashboard
+            TEACHER DASHBOARD
           </p>
           <button 
             onClick={() => navigate('/tasks/create')}
@@ -173,9 +179,19 @@ export const TeacherDashboard = () => {
                       <td className="p-4 text-sm text-text-secondary-dark whitespace-nowrap text-right">
                         <div className="flex justify-end items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
-                            onClick={() => navigate(`/tasks/edit/${task.id}`)}
-                            className="p-2 rounded-full hover:bg-border-dark"
-                            title="View"
+                            onClick={() => {
+                              setSelectedTask(task);
+                              setDrawerOpen(true);
+                            }}
+                            className="p-2 rounded-full hover:bg-border-dark transition-colors"
+                            title="Comments & Attachments"
+                          >
+                            <MessageCircle className="w-5 h-5 text-primary hover:text-primary/80" />
+                          </button>
+                          <button 
+                            onClick={() => navigate(`/tasks/view/${task.id}`)}
+                            className="p-2 rounded-full hover:bg-border-dark transition-colors"
+                            title="View Details"
                           >
                             <svg className="w-5 h-5 text-text-secondary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -213,6 +229,20 @@ export const TeacherDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Task Drawer */}
+        {selectedTask && (
+          <TaskDrawer
+            isOpen={drawerOpen}
+            onClose={() => {
+              setDrawerOpen(false);
+              setSelectedTask(null);
+            }}
+            taskId={selectedTask.id}
+            taskTitle={selectedTask.title}
+            taskTeacherId={selectedTask.teacher_id}
+          />
+        )}
       </main>
     </Layout>
   );

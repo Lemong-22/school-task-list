@@ -6,6 +6,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Layout } from '../components/Layout';
 import { useTeacherTasks } from '../hooks/useTeacherTasks';
 import { SUBJECT_LIST } from '../constants/subjects';
 
@@ -121,19 +122,24 @@ export const EditTaskPage = () => {
 
   if (fetchingTask) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-none-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading task...</p>
+      <Layout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <svg className="animate-spin h-12 w-12 text-primary mx-auto mb-4" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            <p className="text-text-secondary-dark">Loading task...</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       {/* Header */}
-      <header className="bg-white shadow">
+      <div className="mb-6">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center">
             <button
@@ -144,19 +150,19 @@ export const EditTaskPage = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Task</h1>
+            <h1 className="text-text-primary-dark text-4xl font-black leading-tight tracking-[-0.033em]">Edit Task</h1>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow rounded-none-none p-6">
+        <div className="bg-component-dark shadow-md rounded-lg border border-border-dark p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="rounded-none-none bg-red-50 p-4">
-                <div className="text-sm text-red-800">{error}</div>
+              <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
+                <div className="text-sm text-red-400 font-medium">{error}</div>
               </div>
             )}
 
@@ -170,7 +176,7 @@ export const EditTaskPage = () => {
                 required
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-none-none shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               >
                 <option value="">-- Select Subject --</option>
                 {SUBJECT_LIST.map((subj) => (
@@ -193,7 +199,7 @@ export const EditTaskPage = () => {
                 maxLength={200}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-none-none shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 placeholder="e.g., Complete Math Homework Chapter 5"
               />
               <p className="mt-1 text-xs text-gray-500">{title.length}/200 characters</p>
@@ -210,7 +216,7 @@ export const EditTaskPage = () => {
                 maxLength={1000}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-none-none shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 placeholder="Provide detailed instructions about this task..."
               />
               <p className="mt-1 text-xs text-gray-500">{description.length}/1000 characters</p>
@@ -228,7 +234,7 @@ export const EditTaskPage = () => {
                 min={getTodayDate()}
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-none-none shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               />
             </div>
 
@@ -249,8 +255,8 @@ export const EditTaskPage = () => {
               <p className="mt-1 text-xs text-gray-500">
                 Coin reward cannot be changed after task creation
               </p>
-              <div className="mt-2 bg-blue-50 border border-blue-200 rounded-none-none p-3">
-                <p className="text-xs text-blue-800">
+              <div className="mt-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+                <p className="text-xs text-yellow-300 font-medium">
                   ℹ️ <strong>Info:</strong> Top 3 students to complete get DOUBLE coins ({coinReward * 2}), others get {coinReward} coins. Late submissions get 0 coins.
                 </p>
               </div>
@@ -261,14 +267,14 @@ export const EditTaskPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-none-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Updating Task...' : '✓ Update Task'}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/dashboard/teacher')}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-none-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="flex-1 bg-gray-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors"
               >
                 Cancel
               </button>
@@ -276,6 +282,6 @@ export const EditTaskPage = () => {
           </form>
         </div>
       </main>
-    </div>
+    </Layout>
   );
 };

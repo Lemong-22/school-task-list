@@ -27,7 +27,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             </svg>
           </div>
           <h2 className="text-text-primary-dark text-lg font-bold leading-tight tracking-[-0.015em]">
-            Project Rank-Up
+            SCHOOL-TASK-LIST
           </h2>
         </div>
 

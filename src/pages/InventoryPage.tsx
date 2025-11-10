@@ -174,13 +174,13 @@ export const InventoryPage: React.FC = () => {
         ) : (
           <div className="space-y-8">
             {/* Titles Section */}
-            <div className="bg-codedex-slate rounded-none-none shadow-brutal-lg border-2 border-gray-700 overflow-hidden">
-              <div className="bg-codedex-purple px-6 py-4">
+            <div className="bg-component-dark rounded-lg shadow-md border border-border-dark overflow-hidden">
+              <div className="bg-purple-600 px-6 py-4">
                 <h2 className="text-2xl font-bold text-white">📜 My Titles</h2>
                 <p className="text-white text-sm font-medium mt-1">Select 1 title to display on your profile</p>
               </div>
               
-              <div className="p-6 bg-codedex-navy">
+              <div className="p-6 bg-background-dark">
                 {titles.length === 0 ? (
                   <p className="text-gray-400 text-center py-8">You don't have any titles yet.</p>
                 ) : (
@@ -188,10 +188,10 @@ export const InventoryPage: React.FC = () => {
                     {titles.map((title) => (
                       <div
                         key={title.id}
-                        className={`flex items-center justify-between p-4 rounded-none-none border-2 transition-all ${
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                           title.is_equipped
-                            ? 'border-codedex-yellow bg-codedex-slate shadow-brutal'
-                            : 'border-gray-600 hover:border-gray-500'
+                            ? 'border-primary bg-primary/10 ring-2 ring-primary shadow-md'
+                            : 'border-border-dark hover:border-primary/50'
                         }`}
                       >
                         <div className="flex-1">
@@ -205,7 +205,7 @@ export const InventoryPage: React.FC = () => {
                                   {RARITY_CONFIG[title.rarity].label}
                                 </span>
                                 {title.is_equipped && (
-                                  <span className="text-xs font-bold px-2 py-1 rounded-none bg-codedex-yellow text-black">
+                                  <span className="text-xs font-bold px-2 py-1 rounded-md bg-primary text-white">
                                     ✓ Terpasang
                                   </span>
                                 )}
@@ -218,7 +218,7 @@ export const InventoryPage: React.FC = () => {
                             <button
                               onClick={handleTitleUnequip}
                               disabled={equippingTitle}
-                              className="px-4 py-2 bg-transparent text-codedex-pink font-medium rounded-none-none hover:bg-codedex-slate transition-colors disabled:opacity-50"
+                              className="px-4 py-2 bg-transparent text-red-400 font-medium rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
                             >
                               Lepas
                             </button>
@@ -226,7 +226,7 @@ export const InventoryPage: React.FC = () => {
                             <button
                               onClick={() => handleTitleEquip(title)}
                               disabled={equippingTitle}
-                              className="px-4 py-2 bg-codedex-green text-black font-bold rounded-none-none shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50"
+                              className="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                             >
                               Pasang
                             </button>
@@ -240,15 +240,15 @@ export const InventoryPage: React.FC = () => {
             </div>
 
             {/* Badges Section */}
-            <div className="bg-codedex-slate rounded-none-none shadow-brutal-lg border-2 border-gray-700 overflow-hidden">
-              <div className="bg-codedex-pink px-6 py-4">
+            <div className="bg-component-dark rounded-lg shadow-md border border-border-dark overflow-hidden">
+              <div className="bg-pink-600 px-6 py-4">
                 <h2 className="text-2xl font-bold text-white">🎖️ My Badges</h2>
                 <p className="text-white text-sm font-medium mt-1">
                   Pilih hingga {MAX_EQUIPPED_BADGES} lencana untuk ditampilkan ({selectedBadgeIds.length}/{MAX_EQUIPPED_BADGES} dipilih)
                 </p>
               </div>
               
-              <div className="p-6 bg-codedex-navy">
+              <div className="p-6 bg-background-dark">
                 {badges.length === 0 ? (
                   <p className="text-gray-400 text-center py-8">You don't have any badges yet.</p>
                 ) : (
@@ -260,10 +260,10 @@ export const InventoryPage: React.FC = () => {
                           <button
                             key={badge.id}
                             onClick={() => handleBadgeToggle(badge.id)}
-                            className={`p-4 rounded-none-none border-2 transition-all duration-150 ${
+                            className={`p-4 rounded-lg border-2 transition-all duration-150 ${
                               isSelected
-                                ? 'border-codedex-green bg-codedex-slate shadow-brutal'
-                                : 'border-gray-600 hover:border-gray-500'
+                                ? 'border-primary bg-primary/10 ring-2 ring-primary shadow-md'
+                                : 'border-border-dark hover:border-primary/50'
                             }`}
                           >
                             <div className="text-4xl mb-2">{badge.icon_url || '🎖️'}</div>
@@ -275,7 +275,7 @@ export const InventoryPage: React.FC = () => {
                             </div>
                             {isSelected && (
                               <div className="mt-2">
-                                <span className="text-xs font-bold text-codedex-green">✓ Dipilih</span>
+                                <span className="text-xs font-bold text-green-400">✓ Selected</span>
                               </div>
                             )}
                           </button>
@@ -287,7 +287,7 @@ export const InventoryPage: React.FC = () => {
                       <button
                         onClick={handleSaveBadges}
                         disabled={equippingBadges}
-                        className="px-6 py-3 bg-codedex-green text-black font-bold rounded-none-none shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50"
+                        className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                       >
                         {equippingBadges ? 'Menyimpan...' : 'Simpan Pilihan Lencana'}
                       </button>

@@ -6,9 +6,10 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Layout } from '../components/Layout';
+import { SUBJECT_LIST } from '../constants/subjects';
 import { useTeacherTasks } from '../hooks/useTeacherTasks';
 import { StudentSelector } from '../components/StudentSelector';
-import { SUBJECT_LIST } from '../constants/subjects';
 
 export const CreateTaskPage = () => {
   const { user } = useAuth();
@@ -97,9 +98,9 @@ export const CreateTaskPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-codedex-dark">
+    <Layout>
       {/* Header */}
-      <header className="bg-codedex-navy border-b-2 border-codedex-slate">
+      <header className="mb-6">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center">
             <button
@@ -110,33 +111,33 @@ export const CreateTaskPage = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <h1 className="text-2xl font-pixel text-gray-100">Create New Task</h1>
+            <h1 className="text-text-primary-dark text-4xl font-black leading-tight tracking-[-0.033em]">Create New Task</h1>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-codedex-slate shadow-brutal-lg rounded-none border-2 border-codedex-slate p-6">
+        <div className="bg-component-dark shadow-md rounded-lg border border-border-dark p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="rounded-none bg-codedex-pink/20 border-2 border-codedex-pink p-4">
-                <div className="text-sm text-codedex-pink font-medium">{error}</div>
+              <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
+                <div className="text-sm text-red-400 font-medium">{error}</div>
               </div>
             )}
 
             {/* Subject Field */}
             <div>
               <label htmlFor="subject" className="block text-sm font-bold text-gray-100">
-                Subject <span className="text-codedex-pink">*</span>
+                Subject <span className="text-red-400">*</span>
               </label>
               <select
                 id="subject"
                 required
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-codedex-navy border-2 border-gray-600 text-gray-100 rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan"
+                className="mt-1 block w-full px-3 py-2 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-0 focus:border-primary transition-colors"
               >
                 <option value="">-- Select Subject --</option>
                 {SUBJECT_LIST.map((subj) => (
@@ -149,8 +150,8 @@ export const CreateTaskPage = () => {
 
             {/* Title Field */}
             <div>
-              <label htmlFor="title" className="block text-sm font-bold text-codedex-cyan">
-                Task Title <span className="text-codedex-pink">*</span>
+              <label htmlFor="title" className="block text-sm font-bold text-text-secondary-dark">
+                Task Title <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -159,15 +160,15 @@ export const CreateTaskPage = () => {
                 maxLength={200}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-codedex-navy border-2 border-codedex-cyan text-codedex-cyan rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan"
+                className="mt-1 block w-full px-3 py-2 bg-background-dark border border-primary text-text-primary-dark rounded-lg focus:outline-none focus:ring-0 focus:border-primary transition-colors"
                 placeholder="e.g., Read Chapter 5 and answer questions"
               />
-              <p className="mt-1 text-xs text-codedex-cyan">{title.length}/200 characters</p>
+              <p className="mt-1 text-xs text-text-secondary-dark">{title.length}/200 characters</p>
             </div>
 
             {/* Description Field */}
             <div>
-              <label htmlFor="description" className="block text-sm font-bold text-codedex-cyan">
+              <label htmlFor="description" className="block text-sm font-bold text-text-secondary-dark">
                 Description (Optional)
               </label>
               <textarea
@@ -176,7 +177,7 @@ export const CreateTaskPage = () => {
                 maxLength={1000}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-codedex-navy border-2 border-gray-600 text-gray-100 rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan"
+                className="mt-1 block w-full px-3 py-2 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-0 focus:border-primary transition-colors"
                 placeholder="Provide detailed instructions about this task..."
               />
               <p className="mt-1 text-xs text-gray-400">{description.length}/1000 characters</p>
@@ -186,24 +187,31 @@ export const CreateTaskPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Due Date Field */}
               <div>
-                <label htmlFor="dueDate" className="block text-sm font-bold text-gray-100">
-                  Due Date <span className="text-codedex-pink">*</span>
+                <label htmlFor="dueDate" className="block text-sm font-bold text-text-secondary-dark mb-2">
+                  📅 Due Date <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="date"
-                  id="dueDate"
-                  required
-                  min={getTodayDate()}
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 bg-codedex-navy border-2 border-gray-600 text-gray-100 rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan"
-                />
+                <div className="relative cursor-pointer" onClick={() => document.getElementById('dueDate')?.showPicker?.()}>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                    <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="date"
+                    id="dueDate"
+                    required
+                    min={getTodayDate()}
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="mt-1 block w-full pl-10 pr-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer hover:bg-background-dark/80"
+                  />
+                </div>
               </div>
 
               {/* Coin Reward Field */}
               <div>
-                <label htmlFor="coinReward" className="block text-sm font-bold text-gray-100">
-                  Coin Reward 🪙 <span className="text-codedex-pink">*</span>
+                <label htmlFor="coinReward" className="block text-sm font-bold text-text-secondary-dark mb-2">
+                  🪙 Coin Reward <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="number"
@@ -213,7 +221,7 @@ export const CreateTaskPage = () => {
                   max={1000}
                   value={coinReward}
                   onChange={(e) => setCoinReward(parseInt(e.target.value) || 0)}
-                  className="mt-1 block w-full px-3 py-2 bg-codedex-navy border-2 border-gray-600 text-gray-100 rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan"
+                  className="mt-1 block w-full px-3 py-2 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-0 focus:border-primary transition-colors"
                 />
                 <p className="mt-1 text-xs text-gray-400">
                   Base coins (0-1000)
@@ -222,8 +230,8 @@ export const CreateTaskPage = () => {
             </div>
 
             {/* Gamification Tip */}
-            <div className="bg-codedex-yellow/20 border-2 border-codedex-yellow rounded-none p-3">
-              <p className="text-xs text-codedex-yellow font-medium">
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+              <p className="text-xs text-yellow-300 font-medium">
                 💡 <strong>Gamification Tip:</strong> Top 3 students to complete get DOUBLE coins! Others get the base amount. Late submissions get 0 coins.
               </p>
             </div>
@@ -244,14 +252,14 @@ export const CreateTaskPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-codedex-green text-black font-bold py-3 px-4 rounded-none shadow-brutal hover:shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Creating Task...' : '✓ Create Task'}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/dashboard/teacher')}
-                className="flex-1 bg-codedex-navy border-2 border-gray-600 text-gray-100 font-bold py-3 px-4 rounded-none hover:bg-gray-700 transition-colors"
+                className="flex-1 bg-gray-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors"
               >
                 Cancel
               </button>
@@ -259,6 +267,6 @@ export const CreateTaskPage = () => {
           </form>
         </div>
       </main>
-    </div>
+    </Layout>
   );
 };

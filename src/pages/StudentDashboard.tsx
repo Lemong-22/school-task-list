@@ -8,6 +8,7 @@ import { CoinRewardResult } from '../types/coin';
 import { supabase } from '../lib/supabaseClient';
 import { TaskFilters } from '../components/TaskFilters';
 import { EmptyState } from '../components/EmptyState';
+import { RefreshCw } from 'lucide-react';
 
 export const StudentDashboard = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -26,16 +27,25 @@ export const StudentDashboard = () => {
     search: filters.search,
   };
 
-  const { tasks, loading, error, refetch } = useTasks(user?.id || null, hookFilters);
+  const { tasks, loading, error, refetch, newTaskCount, clearNotification } = useTasks(user?.id || null, hookFilters);
   const [currentCoins, setCurrentCoins] = useState(profile?.total_coins || 0);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [rewardData, setRewardData] = useState<CoinRewardResult | null>(null);
   const [completedTaskTitle, setCompletedTaskTitle] = useState<string>('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Update coins when profile changes
   useEffect(() => {
     setCurrentCoins(profile?.total_coins || 0);
   }, [profile?.total_coins]);
+
+  // Handle refresh with animation
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    clearNotification();
+    await refetch();
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
 
   const handleTaskCompleted = async (reward: CoinRewardResult, taskTitle: string) => {
     // Show the reward modal FIRST before refetching
@@ -83,7 +93,7 @@ export const StudentDashboard = () => {
         {/* Page Header */}
         <div className="px-4 pb-8">
           <p className="text-text-primary-dark text-4xl font-black leading-tight tracking-[-0.033em]">
-            My Dashboard
+            {profile?.full_name?.toUpperCase() || 'STUDENT'} DASHBOARD
           </p>
         </div>
 
@@ -112,6 +122,30 @@ export const StudentDashboard = () => {
         <h2 className="text-text-primary-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4 pt-10">
           My Tasks
         </h2>
+
+        {/* New Task Notification */}
+        {newTaskCount > 0 && (
+          <div key={`notification-${newTaskCount}`} className="px-4 mb-6 animate-slide-down">
+            <div className="bg-primary/20 border border-primary/50 rounded-lg p-4 flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-primary rounded-full animate-ping"></div>
+                <p className="text-primary font-medium">
+                  {newTaskCount === 1 
+                    ? '1 new task assigned!' 
+                    : `${newTaskCount} new tasks assigned!`}
+                </p>
+              </div>
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Task Filters */}
         <div className="px-4">
