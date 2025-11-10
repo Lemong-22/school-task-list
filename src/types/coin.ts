@@ -38,6 +38,9 @@ export interface LeaderboardEntry {
   student_id: string;
   student_name: string;
   total_coins: number;
+  active_title_name?: string | null;
+  active_namecard_name?: string | null;
+  namecard_rarity?: string | null;
 }
 
 /**

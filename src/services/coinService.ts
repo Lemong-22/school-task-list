@@ -25,10 +25,10 @@ export const coinService = {
   },
 
   /**
-   * Get leaderboard with top N students
+   * Get leaderboard with top N students (with titles & namecards)
    */
   async getLeaderboard(limit: number = 10): Promise<LeaderboardEntry[]> {
-    const { data, error } = await supabase.rpc('get_leaderboard', {
+    const { data, error } = await supabase.rpc('get_leaderboard_with_cosmetics', {
       p_limit: limit,
     });
 

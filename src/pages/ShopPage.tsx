@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Swal from 'sweetalert2';
 import { useAuth } from '../contexts/AuthContext';
 import { useFilteredShopItems } from '../hooks/useShop';
 import { usePurchaseItem } from '../hooks/useShop';
@@ -42,15 +43,30 @@ export const ShopPage: React.FC = () => {
       const result: PurchaseResult = await purchaseItem(selectedItem.id);
 
       if (result.success) {
-        setPurchaseStatus('success');
-        setPurchaseMessage(`Berhasil membeli ${selectedItem.name}!`);
+        // Close purchase modal first
+        setShowPurchaseModal(false);
         
-        // Refresh shop items and trigger auth context profile refresh
+        // Show SweetAlert2 success animation
+        await Swal.fire({
+          title: 'Sukses!',
+          text: `${selectedItem.name} berhasil dibeli! 🎉`,
+          icon: 'success',
+          confirmButtonText: 'Oke',
+          confirmButtonColor: '#607AFB',
+          background: '#1a1f2e',
+          color: '#e5e7eb',
+          showClass: {
+            popup: 'animate__animated animate__fadeInDown animate__faster'
+          },
+          hideClass: {
+            popup: 'animate__animated animate__fadeOutUp animate__faster'
+          }
+        });
+        
+        // Refresh shop items after alert closes
         await refetch();
-        
-        // Force page reload to refresh coin balance from AuthContext
-        // This ensures coins update in real-time across all components
-        window.location.reload();
+        setSelectedItem(null);
+        setPurchaseStatus('idle');
       }
     } catch (err) {
       setPurchaseStatus('error');
@@ -214,10 +230,15 @@ export const ShopPage: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className="bg-component-dark rounded-lg shadow-md border border-border-dark hover:shadow-lg transition-all overflow-hidden"
+                  className={`rounded-lg shadow-md hover:shadow-lg transition-all overflow-hidden ${
+                    item.rarity === 'legendary' 
+                      ? 'bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/60 shadow-yellow-500/20 animate-shimmer' 
+                      : 'bg-component-dark border border-border-dark'
+                  }`}
                 >
                   {/* Item Header with Rarity */}
                   <div className={`p-4 ${
+                    item.rarity === 'legendary' ? 'bg-gradient-to-r from-yellow-600 to-orange-600' :
                     item.rarity === 'epic' ? 'bg-purple-600' :
                     item.rarity === 'rare' ? 'bg-blue-600' :
                     'bg-gray-600'

@@ -5,12 +5,12 @@
 /**
  * Shop item rarity levels
  */
-export type ShopItemRarity = 'common' | 'rare' | 'epic';
+export type ShopItemRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 /**
  * Shop item types
  */
-export type ShopItemType = 'title' | 'badge';
+export type ShopItemType = 'title' | 'badge' | 'namecard';
 
 /**
  * Base shop item from database
@@ -123,6 +123,11 @@ export const RARITY_CONFIG: Record<ShopItemRarity, { price: number; label: strin
     price: 500,
     label: 'Epic',
     color: 'text-purple-600 dark:text-purple-400'
+  },
+  legendary: {
+    price: 1500,
+    label: 'Legendary',
+    color: 'text-yellow-600 dark:text-yellow-400'
   }
 };
 
@@ -135,8 +140,12 @@ export const ITEM_TYPE_CONFIG: Record<ShopItemType, { label: string; labelPlural
     labelPlural: 'Gelar'
   },
   badge: {
-    label: 'Lencana',
-    labelPlural: 'Lencana'
+    label: 'Badge',
+    labelPlural: 'Badges'
+  },
+  namecard: {
+    label: 'Namecard',
+    labelPlural: 'Namecards'
   }
 };
 

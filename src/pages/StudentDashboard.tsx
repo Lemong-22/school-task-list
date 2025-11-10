@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabaseClient';
 import { TaskFilters } from '../components/TaskFilters';
 import { EmptyState } from '../components/EmptyState';
 import { RefreshCw } from 'lucide-react';
+import { BanknotesIcon } from '@heroicons/react/24/solid';
 
 export const StudentDashboard = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -102,7 +103,10 @@ export const StudentDashboard = () => {
           {/* Total Coins */}
           <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-component-dark shadow-md">
             <p className="text-text-secondary-dark text-sm font-medium leading-normal">Total Coins</p>
-            <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{currentCoins}</p>
+            <div className="flex items-center gap-2">
+              <BanknotesIcon className="w-8 h-8 text-yellow-400" />
+              <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{currentCoins}</p>
+            </div>
           </div>
 
           {/* Tasks Pending */}
