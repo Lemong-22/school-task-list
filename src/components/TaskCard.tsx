@@ -4,12 +4,14 @@
  * Phase 3E: UI Components
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { MessageCircle } from 'lucide-react';
 import { TaskAssignmentWithTask } from '../types/task';
 import { CoinRewardResult } from '../types/coin';
 import { useCoins } from '../hooks/useCoins';
+import { TaskDrawer } from './TaskDrawer';
 
 interface TaskCardProps {
   assignment: TaskAssignmentWithTask;
@@ -19,6 +21,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTaskCompleted }) => {
   const { completeTask, loading, error } = useCoins();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const { task, is_completed, completed_at } = assignment;
   const dueDate = new Date(task.due_date);
@@ -103,6 +106,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTas
         {/* Spacer to push button to bottom */}
         <div className="flex-grow"></div>
 
+        {/* Comments Button */}
+        <button
+          onClick={() => setIsDrawerOpen(true)}
+          className="mb-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-component-dark border border-border-dark text-text-secondary-dark rounded-lg hover:border-primary hover:text-primary transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" />
+          <span className="text-sm font-medium">Comments & Attachments</span>
+        </button>
+
         {/* Completion Info or Action Button */}
         {is_completed ? (
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
@@ -141,6 +153,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTas
             </button>
           </div>
         )}
+
+        {/* Task Drawer */}
+        <TaskDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          taskId={task.id}
+          taskTitle={task.title}
+          taskTeacherId={task.teacher_id}
+        />
       </div>
     </motion.div>
   );

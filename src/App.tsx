@@ -7,6 +7,7 @@ import { StudentDashboard } from './pages/StudentDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { CreateTaskPage } from './pages/CreateTaskPage';
 import { EditTaskPage } from './pages/EditTaskPage';
+import { ViewTaskPage } from './pages/ViewTaskPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ShopPage } from './pages/ShopPage';
@@ -56,6 +57,16 @@ function App() {
             element={
               <ProtectedRoute allowedRole="teacher">
                 <EditTaskPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* View Task - Both roles */}
+          <Route
+            path="/tasks/view/:taskId"
+            element={
+              <ProtectedRoute>
+                <ViewTaskPage />
               </ProtectedRoute>
             }
           />

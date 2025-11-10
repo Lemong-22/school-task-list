@@ -62,75 +62,90 @@ export const StudentSelector = ({ selectedStudentIds, onChange }: StudentSelecto
   if (loading) {
     return (
       <div className="text-center py-4">
-        <div className="animate-spin rounded-none h-8 w-8 border-b-2 border-codedex-cyan mx-auto"></div>
-        <p className="mt-2 text-gray-300">Memuat daftar siswa...</p>
+        <svg className="animate-spin h-8 w-8 text-primary mx-auto" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <p className="mt-2 text-text-secondary-dark">Loading students...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-codedex-navy border-2 border-gray-600 rounded-none p-4">
+    <div className="bg-background-dark border border-border-dark rounded-lg p-4">
       {/* Header with selection count */}
       <div className="flex justify-between items-center mb-3">
-        <h3 className="text-sm font-bold text-gray-100">
-          Pilih Siswa ({selectedStudentIds.length} dipilih)
+        <h3 className="text-sm font-bold text-text-primary-dark">
+          Select Students <span className="text-primary">({selectedStudentIds.length} selected)</span>
         </h3>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={selectAll}
-            className="text-xs text-codedex-cyan hover:text-codedex-yellow font-bold transition-colors"
+            className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
           >
-            Pilih Semua
+            Select All
           </button>
-          <span className="text-gray-600">|</span>
+          <span className="text-border-dark">|</span>
           <button
             type="button"
             onClick={deselectAll}
-            className="text-xs text-codedex-cyan hover:text-codedex-yellow font-bold transition-colors"
+            className="text-xs text-text-secondary-dark hover:text-text-primary-dark font-medium transition-colors"
           >
-            Hapus Semua
+            Clear All
           </button>
         </div>
       </div>
 
       {/* Search box */}
       <div className="mb-3">
-        <input
-          type="text"
-          placeholder="Cari siswa..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 bg-codedex-slate border-2 border-gray-600 text-gray-100 rounded-none focus:outline-none focus:ring-2 focus:ring-codedex-cyan focus:border-codedex-cyan text-sm placeholder-gray-500"
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-4 w-4 text-text-secondary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Search students..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-3 py-2 bg-component-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm placeholder-text-secondary-dark transition-all"
+          />
+        </div>
       </div>
 
       {/* Student list */}
-      <div className="max-h-64 overflow-y-auto border-2 border-gray-600 rounded-none bg-codedex-slate">
+      <div className="max-h-64 overflow-y-auto border border-border-dark rounded-lg bg-component-dark">
         {filteredStudents.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            {searchQuery ? 'Tidak ada siswa yang cocok dengan pencarian' : 'Tidak ada siswa terdaftar'}
+          <div className="text-center py-8 text-text-secondary-dark">
+            {searchQuery ? 'No students match your search' : 'No students registered'}
           </div>
         ) : (
-          <div className="divide-y divide-gray-700">
+          <div className="divide-y divide-border-dark">
             {filteredStudents.map((student) => {
               const isSelected = selectedStudentIds.includes(student.id);
               return (
                 <label
                   key={student.id}
-                  className={`flex items-center px-3 py-2 cursor-pointer transition-all ${
+                  className={`flex items-center px-4 py-3 cursor-pointer transition-all duration-200 transform ${
                     isSelected
-                      ? 'bg-codedex-cyan text-black font-bold'
-                      : 'hover:bg-codedex-navy text-gray-100'
+                      ? 'bg-primary text-white font-semibold scale-[1.02] shadow-md'
+                      : 'hover:bg-background-dark text-text-primary-dark hover:scale-[1.01]'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleStudent(student.id)}
-                    className="h-4 w-4 text-codedex-cyan focus:ring-codedex-cyan border-gray-600 rounded-none"
+                    className="h-4 w-4 text-primary focus:ring-primary focus:ring-offset-0 border-border-dark rounded transition-all"
                   />
-                  <span className="ml-3 text-sm">{student.full_name}</span>
+                  <span className="ml-3 text-sm flex-1">{student.full_name}</span>
+                  {isSelected && (
+                    <svg className="h-5 w-5 text-white animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </label>
               );
             })}
