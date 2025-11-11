@@ -7,15 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary": "#607AFB",
-        "background-light": "#f5f6f8",
-        "background-dark": "#0f1323", 
-        "component-dark": "#2D3748",
-        "text-primary-dark": "#E2E8F0",
-        "text-secondary-dark": "#A0AEC0",
-        "border-dark": "#4A5568",
+        primary: '#4F46E5',
+        'background-dark': '#0f1323',
+        'component-dark': '#1a1f35',
+        'border-dark': '#4A5568',
+        'text-primary-dark': '#F7FAFC',
+        'text-secondary-dark': '#A0AEC0',
       },
       fontFamily: {
+        'pixel': ['"Press Start 2P"', 'cursive'],
         "display": ["Inter", "sans-serif"]
       },
       borderRadius: {

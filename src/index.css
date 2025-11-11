@@ -8,11 +8,59 @@
 */
 @layer base {
   body {
-    @apply bg-background-dark text-text-primary-dark;
+    @apply text-text-primary-dark;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    /* Original background */
+    @apply bg-background-dark;
   }
+}
+
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) scale(1);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+/* Keep only the fade-in animation for potential use */
+@keyframes fade-in-center {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Dragon Theme Component Styles */
+.dragon-card {
+  background: linear-gradient(135deg, rgba(45, 27, 78, 0.3) 0%, rgba(26, 31, 53, 0.8) 100%);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  box-shadow: 0 4px 6px rgba(138, 43, 226, 0.1);
+}
+
+.dragon-card:hover {
+  border-color: rgba(138, 43, 226, 0.5);
+  box-shadow: 0 8px 12px rgba(138, 43, 226, 0.2);
+}
+
+.dragon-accent {
+  border-left: 3px solid rgba(138, 43, 226, 0.6);
 }
 
 /* Kita bisa tetap simpan style untuk 'code' 

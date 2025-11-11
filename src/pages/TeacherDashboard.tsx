@@ -5,14 +5,16 @@ import { MessageCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeacherTasks } from '../hooks/useTeacherTasks';
 import { useStudentCount } from '../hooks/useStudentCount';
-import { useTotalCoinsAwarded } from '../hooks/useTotalCoinsAwarded';
 import { Layout } from '../components/Layout';
 import { TaskFilters } from '../components/TaskFilters';
 import { EmptyState } from '../components/EmptyState';
 import { TaskDrawer } from '../components/TaskDrawer';
+import { OnboardingTour } from '../components/OnboardingTour';
+import { StatCardSkeleton, TableRowSkeleton } from '../components/LoadingSkeleton';
+import { playSound } from '../utils/sounds';
 
 export const TeacherDashboard = () => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
   // Drawer state
@@ -35,7 +37,6 @@ export const TeacherDashboard = () => {
 
   const { tasks, loading, error, deleteTask } = useTeacherTasks(user?.id || null, hookFilters);
   const { count: totalStudents } = useStudentCount();
-  const { totalCoins: totalCoinsAwarded } = useTotalCoinsAwarded(user?.id || null);
 
   // Clear filters function
   const clearFilters = () => {
@@ -60,6 +61,9 @@ export const TeacherDashboard = () => {
 
   return (
     <Layout>
+      {/* Onboarding Tour */}
+      <OnboardingTour tourType="teacher" />
+      
       <main className="flex-1 py-8">
         {/* Page Header with Button */}
         <div className="flex flex-wrap justify-between items-center gap-4 px-4 pb-8">
@@ -67,8 +71,11 @@ export const TeacherDashboard = () => {
             TEACHER DASHBOARD
           </p>
           <button 
-            onClick={() => navigate('/tasks/create')}
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+            onClick={() => {
+              playSound('click');
+              navigate('/tasks/create');
+            }}
+            className="create-task-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
           >
             <PlusIcon className="w-5 h-5" />
             <span className="truncate">New Assignment</span>
@@ -76,7 +83,15 @@ export const TeacherDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+        <div className="stats-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+          {loading ? (
+            <>
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </>
+          ) : (
+            <>
           <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-component-dark shadow-md">
             <p className="text-text-secondary-dark text-sm font-medium leading-normal">Total Students</p>
             <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{totalStudents}</p>
@@ -89,10 +104,8 @@ export const TeacherDashboard = () => {
             <p className="text-text-secondary-dark text-sm font-medium leading-normal">Submissions to Grade</p>
             <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{submissionsToGrade}</p>
           </div>
-          <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-component-dark shadow-md">
-            <p className="text-text-secondary-dark text-sm font-medium leading-normal">Total Coins Awarded</p>
-            <p className="text-text-primary-dark tracking-light text-3xl font-bold leading-tight">{totalCoinsAwarded.toLocaleString()}</p>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Recent Assignments Section */}
@@ -101,7 +114,7 @@ export const TeacherDashboard = () => {
         </h2>
 
         {/* Task Filters */}
-        <div className="px-4">
+        <div className="filter-controls px-4">
           <TaskFilters onFilterChange={setFilters} />
         </div>
 
@@ -126,21 +139,22 @@ export const TeacherDashboard = () => {
           ) : tasks.length === 0 ? (
             <>
               {filtersAreActive ? (
-                <EmptyState onClearFilters={clearFilters} />
+                <EmptyState showClearFilters onClearFilters={clearFilters} />
               ) : (
-                <div className="bg-component-dark rounded-lg shadow-md p-12 text-center">
-                  <div className="text-6xl mb-4">📋</div>
-                  <p className="text-text-primary-dark font-medium mb-2">
-                    No tasks created yet
-                  </p>
-                  <p className="text-text-secondary-dark">
-                    Create your first assignment to get started!
-                  </p>
-                </div>
+                <EmptyState
+                  icon="📋"
+                  title="No assignments yet"
+                  message="Create your first assignment to get started with your class!"
+                  actionLabel="Create Assignment"
+                  onAction={() => {
+                    playSound('click');
+                    navigate('/tasks/create');
+                  }}
+                />
               )}
             </>
           ) : (
-            <div className="bg-component-dark rounded-lg shadow-md overflow-x-auto">
+            <div className="task-table bg-component-dark rounded-lg shadow-md overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="border-b border-border-dark">
                   <tr>

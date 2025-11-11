@@ -11,10 +11,18 @@ export interface TaskComment {
   is_edited: boolean;
   created_at: string;
   updated_at: string;
-  user?: {
-    id: string;
+  profiles?: {
     full_name: string;
     role: string;
+    active_title?: {
+      name: string;
+      rarity: string;
+    } | null;
+    active_namecard?: {
+      name: string;
+      rarity: string;
+      icon_url: string;
+    } | null;
   };
 }
 
@@ -66,10 +74,11 @@ export function useTaskComments(taskId: string): UseTaskCommentsReturn {
         .from('task_comments')
         .select(`
           *,
-          user:profiles!user_id (
-            id,
+          profiles (
             full_name,
-            role
+            role,
+            active_title:active_title_id ( name, rarity ),
+            active_namecard:active_namecard_id ( name, rarity, icon_url )
           )
         `)
         .eq('task_id', taskId)
@@ -102,10 +111,11 @@ export function useTaskComments(taskId: string): UseTaskCommentsReturn {
             .from('task_comments')
             .select(`
               *,
-              user:profiles!user_id (
-                id,
+              profiles (
                 full_name,
-                role
+                role,
+                active_title:active_title_id ( name, rarity ),
+                active_namecard:active_namecard_id ( name, rarity, icon_url )
               )
             `)
             .eq('id', payload.new.id)
