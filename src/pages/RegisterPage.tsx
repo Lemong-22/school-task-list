@@ -61,8 +61,33 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-dark px-4 sm:px-6 lg:px-8 overflow-y-auto py-12">
-      <div className="max-w-md w-full bg-component-dark rounded-lg shadow-md border border-border-dark p-8">
+    <div className="relative min-h-screen w-screen overflow-y-auto flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+      {/* Epic HoK-style Background - Cosmic Dragon Theme */}
+      <div className="fixed inset-0 z-0 h-full w-full">
+        {/* Base Layer - Vibrant Purple/Red/Orange */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-red-600 to-orange-600"></div>
+        
+        {/* Animated Flowing Layer - VIVID COLORS */}
+        <div className="absolute inset-0 opacity-80" 
+             style={{ 
+               backgroundImage: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+               backgroundSize: '400% 400%',
+               animation: 'gradient-flow 15s ease infinite'
+             }}></div>
+        
+        {/* Golden Dragon Energy Particles - VISIBLE */}
+        <div className="absolute inset-0 opacity-60" 
+             style={{ 
+               backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.6) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(255, 105, 180, 0.6) 0%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.4) 0%, transparent 50%)',
+               animation: 'float 12s ease-in-out infinite'
+             }}></div>
+      </div>
+      
+      {/* LIGHTER overlay for readability */}
+      <div className="fixed inset-0 z-10 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
+      
+      {/* Floating Register Card */}
+      <div className="relative z-20 max-w-md w-full bg-component-dark/80 backdrop-blur-md rounded-lg shadow-2xl border border-yellow-400/30 p-8">
         <div className="mb-8">
           <h2 className="text-center text-text-primary-dark text-3xl font-bold">
             Create your account
