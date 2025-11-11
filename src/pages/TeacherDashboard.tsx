@@ -10,7 +10,7 @@ import { TaskFilters } from '../components/TaskFilters';
 import { EmptyState } from '../components/EmptyState';
 import { TaskDrawer } from '../components/TaskDrawer';
 import { OnboardingTour } from '../components/OnboardingTour';
-import { StatCardSkeleton, TableRowSkeleton } from '../components/LoadingSkeleton';
+import { StatCardSkeleton } from '../components/LoadingSkeleton';
 import { playSound } from '../utils/sounds';
 
 export const TeacherDashboard = () => {

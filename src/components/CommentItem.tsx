@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
-import { TaskComment } from '../hooks/useTaskComments';
-import { useAuth } from '../contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
+import { TaskComment } from '../hooks/useTaskComments';
 
 interface CommentItemProps {
   comment: TaskComment;
@@ -13,7 +12,6 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment, canEdit, onEdit, onDelete, canDelete }: CommentItemProps) {
-  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [isDeleting, setIsDeleting] = useState(false);

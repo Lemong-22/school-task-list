@@ -11,13 +11,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { useInventoryByType, useEquipTitle, useEquipBadges, useEquipNamecard } from '../hooks/useInventory';
 import { AnimatedModal } from '../components/AnimatedModal';
 import { LoadingBar } from '../components/LoadingBar';
-import { RARITY_CONFIG, ITEM_TYPE_CONFIG, MAX_EQUIPPED_BADGES } from '../types/shop';
+import { RARITY_CONFIG, MAX_EQUIPPED_BADGES } from '../types/shop';
 import type { InventoryItem } from '../types/shop';
 
 export const InventoryPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { titles, badges, namecards, equippedTitle, equippedBadges, equippedNamecard, isEmpty, loading, error, refetch } = useInventoryByType(user?.id);
+  const { titles, badges, namecards, equippedBadges, isEmpty, loading, error, refetch } = useInventoryByType(user?.id);
   const { equipTitle, loading: equippingTitle } = useEquipTitle(() => refetch());
   const { equipBadges, loading: equippingBadges } = useEquipBadges(() => refetch());
   const { equipNamecard, loading: equippingNamecard } = useEquipNamecard(() => refetch());

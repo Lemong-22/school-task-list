@@ -190,7 +190,12 @@ export const CreateTaskPage = () => {
                 <label htmlFor="dueDate" className="block text-sm font-bold text-text-secondary-dark mb-2">
                   📅 Due Date <span className="text-red-400">*</span>
                 </label>
-                <div className="relative cursor-pointer" onClick={() => document.getElementById('dueDate')?.showPicker?.()}>
+                <div className="relative cursor-pointer" onClick={() => {
+                  const input = document.getElementById('dueDate') as HTMLInputElement | null;
+                  if (input && 'showPicker' in input) {
+                    (input as any).showPicker();
+                  }
+                }}>
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                     <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

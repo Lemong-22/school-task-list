@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import type { ShopItemWithOwnership, PurchaseResult, ShopItemType } from '../types/shop';
+import type { ShopItemWithOwnership, PurchaseResult, ShopItemType, ShopItemRarity } from '../types/shop';
 
 interface UseShopItemsResult {
   items: ShopItemWithOwnership[] | null;
@@ -155,7 +155,7 @@ export function useFilteredShopItems(
           } else if (sortBy === 'price-desc') {
             return b.price - a.price;
           } else if (sortBy === 'rarity') {
-            const rarityOrder = { common: 1, rare: 2, epic: 3 };
+            const rarityOrder: Record<ShopItemRarity, number> = { common: 1, rare: 2, epic: 3, legendary: 4 };
             return rarityOrder[b.rarity] - rarityOrder[a.rarity];
           } else {
             return a.name.localeCompare(b.name);
