@@ -148,15 +148,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Sign out function
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // Use local scope to avoid 403 errors on expired sessions
+      // This clears the local session without calling the server
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      
+      if (error) {
+        console.warn('Error during signOut, but clearing local state anyway:', error);
+      }
 
+      // Always clear local state
       setUser(null);
       setProfile(null);
       setRole(null);
     } catch (error: any) {
       console.error('Error in signOut:', error);
-      throw new Error(error.message || 'An error occurred during logout');
+      // Still clear local state even on error
+      setUser(null);
+      setProfile(null);
+      setRole(null);
     }
   };
 

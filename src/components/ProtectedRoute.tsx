@@ -31,7 +31,12 @@ export const ProtectedRoute = ({ children, allowedRole }: ProtectedRouteProps) =
   // Check role-based access
   if (allowedRole && role !== allowedRole) {
     // Redirect to appropriate dashboard based on user's actual role
-    const redirectPath = role === 'student' ? '/dashboard/student' : '/dashboard/teacher';
+    let redirectPath = '/dashboard/student';
+    if (role === 'teacher') {
+      redirectPath = '/dashboard/teacher';
+    } else if (role === 'admin') {
+      redirectPath = '/admin';
+    }
     return <Navigate to={redirectPath} replace />;
   }
 

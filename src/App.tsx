@@ -14,6 +14,8 @@ import { ShopPage } from './pages/ShopPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { AnalyticsDashboard } from './pages/AnalyticsDashboard';
 import { CalendarPage } from './pages/CalendarPage';
+import { AdminPage } from './pages/AdminPage';
+import { AdminUserManagementPage } from './pages/AdminUserManagementPage';
 
 function App() {
   return (
@@ -79,6 +81,26 @@ function App() {
             element={
               <ProtectedRoute allowedRole="teacher">
                 <AnalyticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Shop Management - Admin only */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin User Management - Admin only */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminUserManagementPage />
               </ProtectedRoute>
             }
           />

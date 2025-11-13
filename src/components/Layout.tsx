@@ -80,6 +80,31 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               </NavLink>
             )}
 
+            {profile?.role === 'admin' && (
+              <>
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    isActive 
+                      ? 'text-primary text-sm font-bold leading-normal' 
+                      : 'text-text-primary-dark hover:text-primary text-sm font-medium leading-normal transition-colors'
+                  }
+                >
+                  🛠️ Shop Admin
+                </NavLink>
+                <NavLink
+                  to="/admin/users"
+                  className={({ isActive }) =>
+                    isActive 
+                      ? 'text-primary text-sm font-bold leading-normal' 
+                      : 'text-text-primary-dark hover:text-primary text-sm font-medium leading-normal transition-colors'
+                  }
+                >
+                  👥 User Management
+                </NavLink>
+              </>
+            )}
+
             <NavLink
               to="/calendar"
               className={({ isActive }) =>
