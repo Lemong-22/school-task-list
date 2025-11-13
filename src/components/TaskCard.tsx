@@ -46,6 +46,39 @@ export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTas
     });
   };
 
+  // Priority styling
+  const getPriorityStyles = () => {
+    const priority = task.priority || 'medium';
+    switch (priority) {
+      case 'high':
+        return {
+          border: 'border-red-500/50',
+          borderWidth: 'border-2',
+          shadow: 'shadow-lg shadow-red-500/20',
+          emoji: '🔴',
+          label: 'High'
+        };
+      case 'low':
+        return {
+          border: 'border-green-500/50',
+          borderWidth: 'border',
+          shadow: 'shadow-sm',
+          emoji: '🟢',
+          label: 'Low'
+        };
+      default:
+        return {
+          border: 'border-yellow-500/50',
+          borderWidth: 'border',
+          shadow: 'shadow-md',
+          emoji: '🟡',
+          label: 'Medium'
+        };
+    }
+  };
+
+  const priorityStyle = getPriorityStyles();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -53,12 +86,22 @@ export const TaskCard: React.FC<TaskCardProps> = ({ assignment, studentId, onTas
       transition={{ duration: 0.3 }}
       className="h-full"
     >
-      <div className="bg-component-dark rounded-lg shadow-md border border-border-dark p-6 h-full flex flex-col">
-        {/* Header with Subject Badge */}
+      <div className={`bg-component-dark rounded-lg shadow-md ${priorityStyle.borderWidth} ${priorityStyle.border} ${priorityStyle.shadow} p-6 h-full flex flex-col`}>
+        {/* Header with Subject Badge and Priority */}
         <div className="flex items-start justify-between mb-4">
-          <span className="bg-primary/20 text-primary rounded-full px-3 py-1 text-xs font-medium">
-            {task.subject}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="bg-primary/20 text-white rounded-full px-3 py-1 text-xs font-bold">
+              {task.subject}
+            </span>
+            <span className="text-xs font-medium flex items-center gap-1">
+              {priorityStyle.emoji}
+              <span className={`${
+                task.priority === 'high' ? 'text-red-400' :
+                task.priority === 'low' ? 'text-green-400' :
+                'text-yellow-400'
+              }`}>{priorityStyle.label}</span>
+            </span>
+          </div>
           
           {/* Status Badge */}
           {is_completed && (

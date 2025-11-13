@@ -12,6 +12,8 @@ import { LeaderboardPage } from './pages/LeaderboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ShopPage } from './pages/ShopPage';
 import { InventoryPage } from './pages/InventoryPage';
+import { AnalyticsDashboard } from './pages/AnalyticsDashboard';
+import { CalendarPage } from './pages/CalendarPage';
 
 function App() {
   return (
@@ -67,6 +69,26 @@ function App() {
             element={
               <ProtectedRoute>
                 <ViewTaskPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Analytics Dashboard - Teacher only */}
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute allowedRole="teacher">
+                <AnalyticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Calendar - accessible to all authenticated users */}
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarPage />
               </ProtectedRoute>
             }
           />

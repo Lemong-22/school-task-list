@@ -20,6 +20,9 @@ export const CreateTaskPage = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [dueTime, setDueTime] = useState('23:59'); // Default to end of day
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [estimatedMinutes, setEstimatedMinutes] = useState<number>(30);
   const [coinReward, setCoinReward] = useState(10);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -55,8 +58,17 @@ export const CreateTaskPage = () => {
       return;
     }
 
-    if (new Date(dueDate) < new Date(getTodayDate())) {
-      setError('Due date cannot be in the past');
+    if (!dueTime) {
+      setError('Due time is required');
+      return;
+    }
+
+    // Combine date and time
+    const dueDateTimeString = `${dueDate}T${dueTime}:00`;
+    const dueDateTime = new Date(dueDateTimeString);
+    
+    if (dueDateTime < new Date()) {
+      setError('Due date and time cannot be in the past');
       return;
     }
 
@@ -78,12 +90,18 @@ export const CreateTaskPage = () => {
     setLoading(true);
 
     try {
+      // Combine date and time for accurate deadline
+      const dueDateTimeString = `${dueDate}T${dueTime}:00`;
+      const dueDateTime = new Date(dueDateTimeString);
+      
       await createTask({
         title: title.trim(),
         description: description.trim() || undefined,
-        due_date: new Date(dueDate).toISOString(),
+        due_date: dueDateTime.toISOString(),
         subject: subject,
         coin_reward: coinReward,
+        priority: priority,
+        estimated_minutes: estimatedMinutes,
         student_ids: selectedStudents,
       });
 
@@ -183,38 +201,128 @@ export const CreateTaskPage = () => {
               <p className="mt-1 text-xs text-gray-400">{description.length}/1000 characters</p>
             </div>
 
-            {/* Due Date and Coin Reward - Side by Side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Due Date Field */}
-              <div>
-                <label htmlFor="dueDate" className="block text-sm font-bold text-text-secondary-dark mb-2">
-                  📅 Due Date <span className="text-red-400">*</span>
-                </label>
-                <div className="relative cursor-pointer" onClick={() => {
-                  const input = document.getElementById('dueDate') as HTMLInputElement | null;
-                  if (input && 'showPicker' in input) {
-                    (input as any).showPicker();
-                  }
-                }}>
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                    <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+            {/* Due Date & Time Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="dueDate" className="block text-sm font-bold text-text-secondary-dark mb-2">
+                    📅 Due Date <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative cursor-pointer" onClick={() => {
+                    const input = document.getElementById('dueDate') as HTMLInputElement | null;
+                    if (input && 'showPicker' in input) {
+                      (input as any).showPicker();
+                    }
+                  }}>
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                      <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="date"
+                      id="dueDate"
+                      required
+                      min={getTodayDate()}
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="mt-1 block w-full pl-10 pr-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer hover:bg-background-dark/80"
+                    />
                   </div>
-                  <input
-                    type="date"
-                    id="dueDate"
-                    required
-                    min={getTodayDate()}
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="mt-1 block w-full pl-10 pr-3 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer hover:bg-background-dark/80"
-                  />
+                </div>
+
+                <div>
+                  <label htmlFor="dueTime" className="block text-sm font-bold text-text-secondary-dark mb-2">
+                    🕐 Due Time <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative cursor-pointer" onClick={() => {
+                    const input = document.getElementById('dueTime') as HTMLInputElement | null;
+                    if (input && 'showPicker' in input) {
+                      (input as any).showPicker();
+                    }
+                  }}>
+                    <input
+                      type="time"
+                      id="dueTime"
+                      required
+                      value={dueTime}
+                      onChange={(e) => setDueTime(e.target.value)}
+                      className="mt-1 block w-full px-4 py-2.5 bg-background-dark border border-border-dark text-text-primary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer hover:bg-background-dark/80 text-center font-semibold text-lg"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-text-secondary-dark text-center">Default: 11:59 PM</p>
                 </div>
               </div>
 
-              {/* Coin Reward Field */}
-              <div>
+            {/* Priority Level */}
+            <div>
+                <label className="block text-sm font-bold text-text-secondary-dark mb-2">
+                  ⭐ Priority Level <span className="text-red-400">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPriority('low')}
+                    className={`py-3 px-4 rounded-lg font-medium transition-all ${
+                      priority === 'low'
+                        ? 'bg-green-500/20 border-2 border-green-500 text-green-300'
+                        : 'bg-background-dark border border-border-dark text-text-secondary-dark hover:bg-background-dark/80'
+                    }`}
+                  >
+                    🟢 Low
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPriority('medium')}
+                    className={`py-3 px-4 rounded-lg font-medium transition-all ${
+                      priority === 'medium'
+                        ? 'bg-yellow-500/20 border-2 border-yellow-500 text-yellow-300'
+                        : 'bg-background-dark border border-border-dark text-text-secondary-dark hover:bg-background-dark/80'
+                    }`}
+                  >
+                    🟡 Medium
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPriority('high')}
+                    className={`py-3 px-4 rounded-lg font-medium transition-all ${
+                      priority === 'high'
+                        ? 'bg-red-500/20 border-2 border-red-500 text-red-300'
+                        : 'bg-background-dark border border-border-dark text-text-secondary-dark hover:bg-background-dark/80'
+                    }`}
+                  >
+                    🔴 High
+                  </button>
+                </div>
+              </div>
+
+            {/* Estimated Time */}
+            <div>
+                <label htmlFor="estimatedMinutes" className="block text-sm font-bold text-text-secondary-dark mb-2">
+                  ⏱️ Estimated Time (Optional)
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {[15, 30, 45, 60, 90, 120, 180, 240].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => setEstimatedMinutes(mins)}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                        estimatedMinutes === mins
+                          ? 'bg-primary/20 border-2 border-primary text-primary'
+                          : 'bg-background-dark border border-border-dark text-text-secondary-dark hover:bg-background-dark/80'
+                      }`}
+                    >
+                      {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-text-secondary-dark">
+                  Help students plan their time better
+                </p>
+              </div>
+
+            {/* Coin Reward Field */}
+            <div>
                 <label htmlFor="coinReward" className="block text-sm font-bold text-text-secondary-dark mb-2">
                   🪙 Coin Reward <span className="text-red-400">*</span>
                 </label>
@@ -232,7 +340,6 @@ export const CreateTaskPage = () => {
                   Base coins (0-1000)
                 </p>
               </div>
-            </div>
 
             {/* Gamification Tip */}
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">

@@ -14,6 +14,8 @@ export interface Task {
   due_date: string;
   teacher_id: string;
   coin_reward: number;
+  priority?: 'low' | 'medium' | 'high';
+  estimated_minutes?: number;
   created_at: string;
   updated_at: string;
   status?: string; // Assignment status: 'Pending' or 'Graded'
@@ -48,6 +50,8 @@ export interface CreateTaskInput {
   subject: string;
   due_date: string;
   coin_reward: number;
+  priority?: 'low' | 'medium' | 'high';
+  estimated_minutes?: number;
   student_ids: string[];
 }
 
@@ -60,4 +64,6 @@ export interface UpdateTaskInput {
   description?: string;
   subject?: string;
   due_date?: string;
+  priority?: 'low' | 'medium' | 'high';
+  estimated_minutes?: number;
 }

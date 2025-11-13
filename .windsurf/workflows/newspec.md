@@ -8,7 +8,7 @@ Your task is to initiate the creation of a new feature specification.
 
 To do this, follow these steps precisely:
 1.  Identify the next feature to build. The next feature is **"Phase 8: Data Visualization (Analytics & Calendar)"**.
-2.  Create a new directory inside the `.agent-os` folder.
+2.  Create a new directory inside the `.agent-os/specs/` folder.
 3.  The directory name MUST follow this exact format: `[YYYY-MM-DD]-[feature-name-kebab-case]`. For example: `[TODAY'S_DATE]-data-visualization`.
 4.  Inside this new directory, create three sub-directories: `planning/`, `implementation/`, and `verification/`.
 5.  Inside the `planning/` directory, create another sub-directory named `visuals/`.

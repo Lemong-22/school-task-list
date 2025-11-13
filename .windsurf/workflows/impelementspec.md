@@ -2,20 +2,22 @@
 description: 
 ---
 
-## IMPLEMENTATION COMMAND: Phase 6 (Step 1) - Database Layer
+## IMPLEMENTATION COMMAND: Phase 8 (Step 1) - Database Layer
 
 **## CONTEXT**
--   **Feature:** Phase 6 - Task Filters & Search
+-   **Feature:** Phase 8 - Data Visualization (Analytics & Calendar)
 -   **Status:** All planning documents (`technical-architecture.md`, `implementation-plan.md`) are approved.
--   **Branch:** `feature/task-filters-search`
+-   **Branch:** `feature/data-visualization`
 
 **## YOUR TASK**
-Your task is to execute **Phase 1: Database Layer** from the implementation plan.
+Your task is to execute **Phase A: Database Layer** from the implementation plan.
 
 You must:
-1.  Create a new Supabase migration file.
-2.  Write the complete SQL for the two (2) required RPC functions:
-    * `filter_teacher_tasks(p_teacher_id, p_subject_filter, p_status_filter, p_search_term)`
-    * `filter_student_task_assignments(p_student_id, p_subject_filter, p_status_filter, p_search_term)`
-3.  Write the SQL to create all six (6) new performance indexes as defined in the `technical-architecture.md`.
-4.  Provide the complete, runnable SQL script.
+1.  Create a new Supabase migration file (e.g., `019_add_analytics_rpc.sql`).
+2.  Write the **complete, runnable SQL** for all **four (4) new RPC functions** as defined in the `technical-architecture.md`:
+    * `get_task_completion_stats()` (for the Pie Chart)
+    * `get_student_engagement_stats()` (for the Bar Chart)
+    * `get_subject_performance_stats()` (for the Radar Chart)
+    * `get_all_tasks_for_calendar()` (for the Calendar Page)
+3.  Ensure the functions have the correct permissions (e.g., `SECURITY DEFINER`) and are callable by authenticated users.
+4.  Provide the complete SQL script.

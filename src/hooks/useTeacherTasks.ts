@@ -70,6 +70,8 @@ export const useTeacherTasks = (teacherId: string | null, filters?: TaskFilters)
           due_date: input.due_date,
           coin_reward: input.coin_reward,
           teacher_id: teacherId,
+          priority: input.priority || 'medium',
+          estimated_minutes: input.estimated_minutes || 30,
         })
         .select()
         .single();

@@ -67,6 +67,30 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               Shop
             </NavLink>
 
+            {profile?.role === 'teacher' && (
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) =>
+                  isActive 
+                    ? 'text-primary text-sm font-bold leading-normal' 
+                    : 'text-text-primary-dark hover:text-primary text-sm font-medium leading-normal transition-colors'
+                }
+              >
+                Analytics
+              </NavLink>
+            )}
+
+            <NavLink
+              to="/calendar"
+              className={({ isActive }) =>
+                isActive 
+                  ? 'text-primary text-sm font-bold leading-normal' 
+                  : 'text-text-primary-dark hover:text-primary text-sm font-medium leading-normal transition-colors'
+              }
+            >
+              Calendar
+            </NavLink>
+
             {profile?.role === 'student' && (
               <NavLink
                 to="/inventory"
