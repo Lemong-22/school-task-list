@@ -2,6 +2,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { AnimatedBackground } from '../components/AnimatedBackground';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -10,10 +11,29 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mouseTrail, setMouseTrail] = useState<Array<{ x: number; y: number }>>([]);
 
   const { signIn, role, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Track mouse position for spotlight effect with trail
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const newPos = { x: e.clientX, y: e.clientY };
+      setMousePosition(newPos);
+      
+      // Add to trail and keep last 8 positions
+      setMouseTrail(prev => {
+        const newTrail = [newPos, ...prev].slice(0, 8);
+        return newTrail;
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   // Show success message from registration
   useEffect(() => {
@@ -55,29 +75,33 @@ export const LoginPage = () => {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-      {/* Epic HoK-style Background - Cosmic Dragon Theme */}
-      <div className="absolute inset-0 z-0 h-full w-full">
-        {/* Base Layer - Vibrant Purple/Red/Orange */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-red-600 to-orange-600"></div>
-        
-        {/* Animated Flowing Layer - VIVID COLORS */}
-        <div className="absolute inset-0 opacity-80" 
-             style={{ 
-               backgroundImage: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
-               backgroundSize: '400% 400%',
-               animation: 'gradient-flow 15s ease infinite'
-             }}></div>
-        
-        {/* Golden Dragon Energy Particles - VISIBLE */}
-        <div className="absolute inset-0 opacity-60" 
-             style={{ 
-               backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.6) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(255, 105, 180, 0.6) 0%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.4) 0%, transparent 50%)',
-               animation: 'float 12s ease-in-out infinite'
-             }}></div>
+      {/* Animated Network Background */}
+      <AnimatedBackground className="absolute inset-0 z-0" />
+      
+      {/* Mouse Spotlight Effect with Trailing */}
+      <div className="absolute inset-0 z-[5] pointer-events-none">
+        {/* Trail effect - older positions with decreasing opacity */}
+        {mouseTrail.map((pos, index) => (
+          <div
+            key={index}
+            className="absolute inset-0 transition-opacity duration-300"
+            style={{
+              background: `radial-gradient(250px circle at ${pos.x}px ${pos.y}px, rgba(59, 130, 246, ${0.35 - index * 0.045}), transparent 60%)`,
+              opacity: 1 - index * 0.12,
+            }}
+          />
+        ))}
+        {/* Main bright spotlight */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(200px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(96, 165, 250, 0.5), transparent 50%)`,
+          }}
+        />
       </div>
       
-      {/* LIGHTER overlay for readability */}
-      <div className="absolute inset-0 z-10 bg-black/60" />
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 z-10 bg-black/40" />
       
       {/* Elegant Fade Animation with AnimatePresence */}
       <AnimatePresence>
@@ -231,7 +255,7 @@ export const LoginPage = () => {
                     Created by <span className="text-white font-bold">Yosia Edmund Herlianto</span>
                   </p>
                   <p className="text-gray-400 text-xs drop-shadow-md">
-                    with Quinlan • Ralph • Wilson • Jason
+                    with Quinlan • Ralph • Wilson • Jason • Russell
                   </p>
                 </div>
               </div>
